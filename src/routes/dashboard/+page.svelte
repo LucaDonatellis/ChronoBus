@@ -1,5 +1,8 @@
 <script>
 	import Map from './Map.svelte';
+	import { TriangleAlert } from '@lucide/svelte';
+
+	let mapOpen = $state(false);
 
 	const fermate = [
 		{
@@ -28,6 +31,19 @@
 					nome: 'centro',
 					autobus: [
 						{ linea: '5/', color: 'f5c500', time: 5 },
+						{ linea: '13', color: 'BF6092', time: 12 },
+						{ linea: '13', color: 'BF6092', time: 21 }
+					]
+				}
+			]
+		},
+		{
+			name: 'Fermata 3',
+			arrivi: [
+				{
+					nome: 'centro',
+					autobus: [
+						{ linea: '5/', color: 'f5c500', time: 5 },
 						{ linea: '13', color: 'BF6092', time: 12 }
 					]
 				},
@@ -41,11 +57,31 @@
 			]
 		}
 	];
+	$effect(() => {
+        const element = document.querySelector('#asd');
+        if(mapOpen){
+
+            element.style.height = `${element.scrollHeight}px`;
+            setTimeout(() => {
+                element.style.height = '0';
+            }, 0);
+        }else{
+element.style.height = `${element.scrollHeight}px`;
+        }
+	});
 </script>
 
-<div class="flex flex-col h-full">
-	<div class="">
-		<h2 class=" text-2xl">Fermate più vicine</h2>
+<div class="flex h-full flex-col {mapOpen ? '' : 'p-2'}">
+	<div class="transition-all" id="asd">
+		<div class="flex justify-between overflow-hidden">
+			<h2 class=" text-2xl">Fermate più vicine</h2>
+			<div class="bg-primary flex h-9 w-9 items-center justify-center rounded-full">
+				<div class="indicator">
+					<span class="indicator-item indicator-bottom badge badge-secondary badge-xs px-1 m-0.5">23</span>
+					<TriangleAlert />
+				</div>
+			</div>
+		</div>
 		{#each fermate as fermata}
 			<div class="">
 				<h3 class="text-xl">{fermata.name}</h3>
@@ -72,5 +108,5 @@
 			</div>
 		{/each}
 	</div>
-	<Map searchBar={1} />
+	<Map bind:mapOpen />
 </div>
