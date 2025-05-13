@@ -5,8 +5,10 @@
 
 	let { children } = $props();
 </script>
+	<div class="p-2 " style="height: calc(100vh - 4rem)">
 
-	{@render children()}
+		{@render children()}
+	</div>
 	<div class="fixed bottom-18 right-4 bg-primary rounded-full w-12 h-12 flex items-center justify-center">
 
 		<div class="indicator ">
