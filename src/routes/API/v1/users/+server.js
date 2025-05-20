@@ -2,17 +2,16 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import jwt from "jsonwebtoken";
 
-// Sostituisci la stringa di connessione con quella del tuo database MongoDB!
 mongoose.connect('mongodb+srv://lorenzociroluongo:QvmW8bxBiyZIpDRo@cluster0.dthxrpi.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0');
 
-// Definizione schema e modello utente (evita duplicazione modello)
+// Definizione schema e modello utente 
 const UserSchema = new mongoose.Schema({
   email: { type: String, unique: true, required: true },
   password: { type: String, required: true }
 });
 const User = mongoose.models.User || mongoose.model('User', UserSchema);
 
-const JWT_SECRET = "una_chiave_molto_segreta";
+const JWT_SECRET = "a_secret_key";
 
 export async function POST({ request }) {
   try {

@@ -1,12 +1,13 @@
 <script>
+	import { LogIn } from '@lucide/svelte';
+
 	let email = '';
 	let password = '';
 	let error = '';
 	let success = false;
 	let message = '';
 
-	async function register(event) {
-		event.preventDefault();
+	async function register() {
 		error = '';
 		message = '';
 		success = false;
@@ -21,7 +22,7 @@
 			if (res.ok && data.token) {
 				email = '';
 				password = '';
-				localStorage.setItem('jwt_token', data.token);
+				localStorage.setItem('token', data.token);
 				success = true;
 				error = '';
 				message = data.message || 'Registrazione effettuata con successo.';
@@ -29,7 +30,7 @@
 					window.location.href = '/dashboard';
 				}, 1200); // attendo un secondo per mostrare il messaggio
 			} else if (data.error && data.error.toLowerCase().includes('registrata')) {
-				// Errore: email già esistente (backend deve comunicare "registrata" nell'errore)
+				// Errore: email già esistente
 				error = "L'email inserita è già registrata. Prova con un'altra email.";
 				success = false;
 			} else {
@@ -41,22 +42,60 @@
 			success = false;
 		}
 	}
+
+	async function login() {
+		try {
+			const res = await fetch('/API/v1/session', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ email, password })
+			});
+			const data = await res.json();
+
+			if (res.ok && data.token) {
+				message = data.message || 'Login eseguito!';
+				success = true;
+				// salva token o imposta stato autenticazione qui se serve
+				localStorage.setItem('token', data.token);
+				setTimeout(() => {
+					window.location.href = '/dashboard';
+				}, 1200); // attendo un secondo per mostrare il messaggio
+			} else {
+				success = false;
+				error = data.error || 'Login fallito';
+			}
+		} catch (err) {
+			success = false;
+			error = 'Errore di rete';
+		}
+	}
+
+	function choice(event) {
+		event.preventDefault();
+		// ottieni il bottone su cui è avvenuto il submit
+		const buttonValue = event.submitter?.value;
+		if (buttonValue == 'signin') {
+			login();
+		} else if (buttonValue == 'signup') {
+			register();
+		}
+	}
 </script>
 
-<div class="login-container">
-	<h2>Registrazione</h2>
-	<form on:submit|preventDefault={register}>
+<div class="register-container">
+	<h2>Auth</h2>
+	<form on:submit|preventDefault={choice}>
 		{#if error}
 			<div class="error-message">{error}</div>
 		{/if}
 		{#if success && message}
 			<div class="success-message">{message}</div>
 		{/if}
-		<div>
+		<div style="display: grid; gap: 1rem; ">
 			<label for="username">Email</label>
 			<input id="username" type="email" bind:value={email} required autocomplete="username" />
-		</div>
-		<div>
 			<label for="password">Password</label>
 			<input
 				id="password"
@@ -66,7 +105,8 @@
 				autocomplete="new-password"
 			/>
 		</div>
-		<button type="submit">Sign up</button>
+		<button type="submit" value="signin">Sign in</button>
+		<button type="submit" value="signup">Sign up</button>
 	</form>
 </div>
 
@@ -76,7 +116,7 @@
 		font-family: 'Segoe UI', Arial, sans-serif;
 	}
 
-	.login-container {
+	.register-container {
 		background: #fff;
 		max-width: 340px;
 		margin: 80px auto;
