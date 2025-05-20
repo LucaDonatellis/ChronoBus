@@ -43,6 +43,10 @@
 	},
 	"dependencies": {
 		"@lucide/svelte": "^0.510.0",
-		"daisyui": "^5.0.35"
+		"bcryptjs": "^3.0.2",
+		"daisyui": "^5.0.35",
+		"jsonwebtoken": "^9.0.2",
+		"mongodb": "^6.16.0",
+		"mongoose": "^8.15.0"
 	}
 }
