@@ -5,4 +5,4 @@
 	}
 </script>
 
-<button on:click={gotologin} class="rounded bg-blue-600 px-4 py-2 text-white"> Login </button>
+<button on:click={gotologin} class="rounded bg-blue-600 px-4 py-2 text-white"> Login  </button>
