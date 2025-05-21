@@ -12,6 +12,27 @@ const UserSchema = new mongoose.Schema({
 });
 const User = mongoose.models.User || mongoose.model('User', UserSchema);
 
+/**
+ * Gestisce il login di un utente tramite richiesta POST.
+ *
+ * Endpoint per il login che:
+ * - accetta un oggetto JSON con email e password,
+ * - verifica la presenza dei dati obbligatori,
+ * - controlla se l'email corrisponde a un utente esistente,
+ * - confronta la password fornita con quella salvata (hash),
+ * - se la combinazione è valida, restituisce un token JWT di autenticazione,
+ * - in caso di dati non validi, restituisce un messaggio di errore.
+ *
+ * @async
+ * @function POST
+ * @param {Object} context - Oggetto contenente i dati della richiesta.
+ * @param {Request} context.request - Oggetto Request con il body JSON { email, password }.
+ * @returns {Promise<Response>} Response HTTP che può essere:
+ *   - 201: Login avvenuto con successo, token JWT restituito.
+ *   - 400: Email o password mancanti.
+ *   - 409: Email non trovata nel database.
+ *   - 500: Errore interno del server.
+ */
 export async function POST({ request }) {
     try {
         const { email, password } = await request.json();
