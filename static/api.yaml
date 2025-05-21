@@ -1,0 +1,126 @@
+openapi: 3.0.3
+info:
+  title: ChronoBus API
+  version: 1.0.0
+  description: API per il sito ChronoBus
+
+paths:
+  /API/v1/reports:
+    get:
+      summary: Recupera tutti i report
+      tags:
+        - Reports
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Lista di tutti i report
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Report'
+
+    post:
+      summary: Crea un nuovo report
+      tags:
+        - Reports
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewReport'
+      responses:
+        '201':
+          description: Report creato con successo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '400':
+          description: Dati non validi
+        '500':
+          description: Errore del server
+
+  /API/v1/reports/{id}:
+    get:
+      summary: Recupera un report per ID
+      tags:
+        - Reports
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Report trovato
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+        '404':
+          description: Report non trovato
+        '500':
+          description: Errore del server
+
+    delete:
+      summary: Elimina un report per ID
+      tags:
+        - Reports
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Report eliminato con successo
+        '404':
+          description: Report non trovato
+        '500':
+          description: Errore del server
+
+components:
+  securitySchemes:
+      BearerAuth:
+        type: http
+        scheme: bearer
+        bearerFormat: JWT
+  schemas:
+    NewReport:
+      type: object
+      properties:
+        line:
+          type: string
+        time:
+          type: integer
+          description: UNIX timestamp (es. 1716285960)
+        crowdedness:
+          type: string
+          enum: ['almost_empty', 'empty_seats', 'seats_full', 'crowded', 'overcrowded']
+      required: [line, time, crowdedness]
+
+    Report:
+      allOf:
+        - $ref: '#/components/schemas/NewReport'
+        - type: object
+          properties:
+            _id:
+              type: string
+            __v:
+              type: integer
+          required: [_id]
