@@ -1,14 +1,11 @@
 import mongoose from 'mongoose';
 import jwt from "jsonwebtoken";
+import { json } from '@sveltejs/kit';
 
 const JWT_SECRET = 'a_secret_key';
 
-// Connessione a MongoDB
 mongoose.connect('mongodb+srv://lorenzociroluongo:QvmW8bxBiyZIpDRo@cluster0.dthxrpi.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0');
 
-import { json } from '@sveltejs/kit';
-
-// 2. Definizione schema e modello
 const reportSchema = new mongoose.Schema({
     line: { type: String, required: true },
     time: { type: Number, required: true },
@@ -21,7 +18,6 @@ const reportSchema = new mongoose.Schema({
 
 const Report = mongoose.models.Report || mongoose.model('Report', reportSchema);
 
-// 3. Metodo POST per salvare i dati
 export async function POST({ request }) {
     try {
         const data = await request.json();
