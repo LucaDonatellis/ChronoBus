@@ -11,17 +11,18 @@
 
     async function sendReport() {
 		try {
-			const res = await fetch('/API/v1/report', {
+			const res = await fetch('/API/v1/reports', {
 				method: 'POST',
 				headers: {
-					'Content-Type': 'application/json'
+					'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem("token")}`
 				},
 				body: JSON.stringify({ line, time,crowdedness })
 			});
 			const data = await res.json();
 
-			if (res.ok && data.token) {
-				message = data.message || 'Login eseguito!';
+			if (res.ok) {
+				message = data.message || 'Report inviato con successo!';
 				success = true;
 				setTimeout(() => {
 					window.location.href = '/dashboard';
@@ -29,6 +30,8 @@
 			} else {
 			}
 		} catch (err) {
+            console.log(err);
+            
 			success = false;
 			error = 'Errore di rete';
 		}

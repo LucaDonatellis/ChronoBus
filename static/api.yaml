@@ -10,6 +10,8 @@ paths:
       summary: Recupera tutti i report
       tags:
         - Reports
+      security:
+        - BearerAuth: []
       responses:
         '200':
           description: Lista di tutti i report
@@ -24,6 +26,8 @@ paths:
       summary: Crea un nuovo report
       tags:
         - Reports
+      security:
+        - BearerAuth: []
       requestBody:
         required: true
         content:
@@ -50,6 +54,8 @@ paths:
       summary: Recupera un report per ID
       tags:
         - Reports
+      security:
+        - BearerAuth: []
       parameters:
         - name: id
           in: path
@@ -72,6 +78,8 @@ paths:
       summary: Elimina un report per ID
       tags:
         - Reports
+      security:
+        - BearerAuth: []
       parameters:
         - name: id
           in: path
@@ -87,6 +95,11 @@ paths:
           description: Errore del server
 
 components:
+  securitySchemes:
+      BearerAuth:
+        type: http
+        scheme: bearer
+        bearerFormat: JWT
   schemas:
     NewReport:
       type: object

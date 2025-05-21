@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import jwt from "jsonwebtoken";
+import { validateToken } from '$lib/utils/auth.js';
 
 const JWT_SECRET = 'a_secret_key';
 
@@ -7,7 +8,6 @@ mongoose.connect('mongodb+srv://lorenzociroluongo:QvmW8bxBiyZIpDRo@cluster0.dthx
 
 import { json } from '@sveltejs/kit';
 
-// 2. Definizione schema e modello
 const reportSchema = new mongoose.Schema({
     line: { type: String, required: true },
     time: { type: Number, required: true },
@@ -22,6 +22,12 @@ const Report = mongoose.models.Report || mongoose.model('Report', reportSchema);
 
 
 export async function GET({ params }) {
+    const { valid, payload, error } = validateToken(request);
+
+    if (!valid) {
+        return new Response(JSON.stringify({ error }), { status: 401 });
+    }
+
     const { id } = params;
 
     try {
@@ -38,6 +44,12 @@ export async function GET({ params }) {
 }
 
 export async function DELETE({ params }) {
+    const { valid, payload, error } = validateToken(request);
+
+    if (!valid) {
+        return new Response(JSON.stringify({ error }), { status: 401 });
+    }
+
     const { id } = params;
 
     try {
