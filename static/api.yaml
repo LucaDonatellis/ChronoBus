@@ -93,6 +93,148 @@ paths:
           description: Report non trovato
         '500':
           description: Errore del server
+  /API/v1/users:
+    post:
+      summary: Registra un nuovo utente
+      tags:
+        - Authentication
+      description: Registra un nuovo utente nel database MongoDB. Restituisce un token JWT se la registrazione va a buon fine.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                password:
+                  type: string
+                  example: yourPassword123
+      responses:
+        "201":
+          description: Registrazione avvenuta con successo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  token:
+                    type: string
+                    description: JWT generato all’atto della registrazione
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                  message:
+                    type: string
+                    example: Registrazione avvenuta con successo.
+        "400":
+          description: Parametri mancanti
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Email e password sono obbligatorie.
+        "409":
+          description: Email già registrata
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Email già registrata.
+        "500":
+          description: Errore interno del server
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Errore interno del server.
+  /API/v1/session/login:
+    post:
+      summary: Login utente
+      tags:
+        - Authentication
+      description: Autentica un utente con email e password. Restituisce il token JWT se il login va a buon fine.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                password:
+                  type: string
+                  example: yourPassword123
+      responses:
+        "201":
+          description: Login avvenuto con successo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  token:
+                    type: string
+                    description: JWT generato all’atto del login
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                  message:
+                    type: string
+                    example: Login avvenuto con successo.
+        "400":
+          description: Parametri mancanti
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Email e password sono obbligatorie.
+        "409":
+          description: Email non trovata
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Email non trovata
+        "500":
+          description: Errore interno del server
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Errore interno del server.
 
 components:
   securitySchemes:
