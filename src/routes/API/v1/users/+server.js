@@ -4,7 +4,6 @@ import jwt from "jsonwebtoken";
 
 mongoose.connect('mongodb+srv://lorenzociroluongo:QvmW8bxBiyZIpDRo@cluster0.dthxrpi.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0');
 
-// Definizione schema e modello utente 
 const UserSchema = new mongoose.Schema({
   email: { type: String, unique: true, required: true },
   password: { type: String, required: true }
@@ -17,7 +16,6 @@ export async function POST({ request }) {
   try {
     const { email, password } = await request.json();
 
-    // Validazione input
     if (!email || !password) {
       return new Response(
         JSON.stringify({ error: 'Email e password sono obbligatorie.' }),
@@ -25,7 +23,6 @@ export async function POST({ request }) {
       );
     }
 
-    // Verifica che l'email non sia già registrata
     const existing = await User.findOne({ email });
     if (existing) {
       return new Response(
@@ -34,10 +31,8 @@ export async function POST({ request }) {
       );
     }
 
-    // Hash della password
     const hashed = await bcrypt.hash(password, 10);
 
-    // Salvataggio nel database
     const user = new User({ email, password: hashed });
     await user.save();
 
