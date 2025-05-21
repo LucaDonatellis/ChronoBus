@@ -1,5 +1,5 @@
 <script>
-	import { LogIn } from '@lucide/svelte';
+	import { LogIn } from "@lucide/svelte";
 
 	let email = '';
 	let password = '';
@@ -44,41 +44,40 @@
 	}
 
 	async function login() {
-		try {
-			const res = await fetch('/API/v1/session', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({ email, password })
-			});
-			const data = await res.json();
+    try {
+      const res = await fetch('/API/v1/session/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
 
-			if (res.ok && data.token) {
-				message = data.message || 'Login eseguito!';
-				success = true;
-				// salva token o imposta stato autenticazione qui se serve
-				localStorage.setItem('token', data.token);
-				setTimeout(() => {
-					window.location.href = '/dashboard';
-				}, 1200); // attendo un secondo per mostrare il messaggio
-			} else {
-				success = false;
-				error = data.error || 'Login fallito';
-			}
-		} catch (err) {
-			success = false;
-			error = 'Errore di rete';
-		}
-	}
+      if (res.ok && data.token) {
+        message = data.message || 'Login eseguito!';
+		success = true;
 
-	function choice(event) {
+        localStorage.setItem('token', data.token);
+		setTimeout(() => {
+			window.location.href = '/dashboard';
+		}, 1200); 
+      } else {
+		success = false;
+        error = data.error || 'Login fallito';
+      }
+    } catch (err) {
+	  success = false;
+      error = 'Errore di rete';
+    }
+  }
+
+	function choice(event){
 		event.preventDefault();
-		// ottieni il bottone su cui è avvenuto il submit
-		const buttonValue = event.submitter?.value;
-		if (buttonValue == 'signin') {
+    	const buttonValue = event.submitter?.value;
+    	if(buttonValue=="signin"){
 			login();
-		} else if (buttonValue == 'signup') {
+		}else if(buttonValue=="signup"){
 			register();
 		}
 	}
@@ -94,6 +93,7 @@
 			<div class="success-message">{message}</div>
 		{/if}
 		<div style="display: grid; gap: 1rem; ">
+
 			<label for="username">Email</label>
 			<input id="username" type="email" bind:value={email} required autocomplete="username" />
 			<label for="password">Password</label>

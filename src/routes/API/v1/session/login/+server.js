@@ -4,22 +4,39 @@ import jwt from "jsonwebtoken";
 
 const JWT_SECRET = 'a_secret_key';
 
-// Connessione a MongoDB
 mongoose.connect('mongodb+srv://lorenzociroluongo:QvmW8bxBiyZIpDRo@cluster0.dthxrpi.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0');
 
-// Modello Utente
 const UserSchema = new mongoose.Schema({
     email: { type: String, unique: true, required: true },
     password: { type: String, required: true }
 });
 const User = mongoose.models.User || mongoose.model('User', UserSchema);
 
-// API per login
+/**
+ * Gestisce il login di un utente tramite richiesta POST.
+ *
+ * Endpoint per il login che:
+ * - accetta un oggetto JSON con email e password,
+ * - verifica la presenza dei dati obbligatori,
+ * - controlla se l'email corrisponde a un utente esistente,
+ * - confronta la password fornita con quella salvata (hash),
+ * - se la combinazione è valida, restituisce un token JWT di autenticazione,
+ * - in caso di dati non validi, restituisce un messaggio di errore.
+ *
+ * @async
+ * @function POST
+ * @param {Object} context - Oggetto contenente i dati della richiesta.
+ * @param {Request} context.request - Oggetto Request con il body JSON { email, password }.
+ * @returns {Promise<Response>} Response HTTP che può essere:
+ *   - 201: Login avvenuto con successo, token JWT restituito.
+ *   - 400: Email o password mancanti.
+ *   - 409: Email non trovata nel database.
+ *   - 500: Errore interno del server.
+ */
 export async function POST({ request }) {
     try {
         const { email, password } = await request.json();
 
-        // Validazione input
         if (!email || !password) {
             return new Response(
                 JSON.stringify({ error: 'Email e password sono obbligatorie.' }),
@@ -27,7 +44,6 @@ export async function POST({ request }) {
             );
         }
 
-        // Verifica se l'email non è presente nel db
         const existing = await User.findOne({ email });
         if (!existing) {
             return new Response(
@@ -35,7 +51,6 @@ export async function POST({ request }) {
                 { status: 409 }
             );
         }
-        //ottine la password dal db e la compara con quella inserita
         let user = await User.findOne({ email });
         const valid = await bcrypt.compare(password, user.password);
 
