@@ -46,6 +46,7 @@
 		"bcryptjs": "^3.0.2",
 		"daisyui": "^5.0.35",
 		"jsonwebtoken": "^9.0.2",
+		"leaflet": "^1.9.4",
 		"mongodb": "^6.16.0",
 		"mongoose": "^8.15.0"
 	}
