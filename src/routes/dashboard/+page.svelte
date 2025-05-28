@@ -1,8 +1,16 @@
 <script>
 	import Map from './Map.svelte';
 	import { TriangleAlert } from '@lucide/svelte';
+	import {onMount} from 'svelte';
 
 	let mapOpen = $state(false);
+
+	onMount(() => {
+		//fetch('/API/v2/trentino-trasporti/trips_new').then((res) => console.log(res.json()));
+		fetch('/API/v2/trentino-trasporti/stops').then((res) => console.log(res.json()));
+	});
+
+	
 
 	const fermate = [
 		{
@@ -58,16 +66,15 @@
 		}
 	];
 	$effect(() => {
-        const element = document.querySelector('#asd');
-        if(mapOpen){
-
-            element.style.height = `${element.scrollHeight}px`;
-            setTimeout(() => {
-                element.style.height = '0';
-            }, 0);
-        }else{
-element.style.height = `${element.scrollHeight}px`;
-        }
+		const element = document.querySelector('#asd');
+		if (mapOpen) {
+			element.style.height = `${element.scrollHeight}px`;
+			setTimeout(() => {
+				element.style.height = '0';
+			}, 0);
+		} else {
+			element.style.height = `${element.scrollHeight}px`;
+		}
 	});
 </script>
 
@@ -77,7 +84,9 @@ element.style.height = `${element.scrollHeight}px`;
 			<h2 class=" text-2xl">Fermate più vicine</h2>
 			<div class="bg-primary flex h-9 w-9 items-center justify-center rounded-full">
 				<div class="indicator">
-					<span class="indicator-item indicator-bottom badge badge-secondary badge-xs px-1 m-0.5">23</span>
+					<span class="indicator-item indicator-bottom badge badge-secondary badge-xs m-0.5 px-1"
+						>23</span
+					>
 					<TriangleAlert />
 				</div>
 			</div>
