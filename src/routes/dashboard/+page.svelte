@@ -47,7 +47,7 @@
 	});
 
 	let stopsGroups = $state([]);
-
+  
 	$effect(() => {
 		const element = document.querySelector('#asd');
 		if (mapOpen) {
@@ -102,3 +102,4 @@
 	</div>
 	<Map bind:mapOpen />
 </div>
+
