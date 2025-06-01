@@ -5,51 +5,46 @@
 
 	let mapOpen = $state(false);
 
-	onMount(() => {
-		fetch('/API/v2/trentino-trasporti/stops?limit=4&lat=46.071850157579426&lon=11.120294030730001').then(
-			async (res) => {
-				let stops = await res.json();
-				const groups = {};
+	let map = $state(undefined);
 
-				for (let stop of stops) {
-					console.log("trips",(
-						await (
-							await fetch(`/API/v2/trentino-trasporti/trips_new?limit=2&stopId=${stop.stopId}`)
-						).json()
-					));
-					
-					stop.arrivals = (
-						await (
-							await fetch(`/API/v2/trentino-trasporti/trips_new?limit=2&stopId=${stop.stopId}`)
-						).json()
-					).map((arr) => ({
-						ritardo: Math.round((new Date(arr.oraArrivoEffettivaAFermataSelezionata) -
-							new Date()) /
-							60000),
-						routeColor: (stop.routes.find(
-							(route) => route.routeId === arr.routeId
-						)||{roudeColor:"000000"}).routeColor,
-						routeShortName: (stop.routes.find(
-							(route) => route.routeId === arr.routeId
-						)||{routeShortName:"?"}).routeShortName,
-					}));
-					const key = stop.stopCode.slice(0, -1);
-
-					if (!groups[key]) {
-						groups[key] = [];
-					}
-
-					groups[key].push(stop);
-				}
-				stopsGroups = Object.values(groups).slice(0,3);
+	onMount(async () => {
+		setInterval(async () => {
+			updateNearArrivals();
+		}, 10000);
+		let interval = setInterval(() => {
+			if (map && map.userLatLon) {
+				updateNearArrivals();
+				clearInterval(interval);
 			}
-		);
+		}, 500);
 	});
 
+	async function updateNearArrivals() {
+		let stops = await (
+			await fetch(
+				`/API/v2/trentino-trasporti/stops/with_arrivals?limit=4&lat=${map && map.userLatLon ? map.userLatLon[0] : 0}&lon=${map && map.userLatLon ? map.userLatLon[1] : 0}`
+			)
+		).json();
+		const groups = {};
+
+		for (let stop of stops) {
+			const key = stop.stopCode.slice(0, -1);
+
+			if (!groups[key]) {
+				groups[key] = [];
+			}
+
+			groups[key].push(stop);
+		}
+		stopsGroups = Object.values(groups).slice(0, 3);
+	}
+
 	let stopsGroups = $state([]);
-  
+
 	$effect(() => {
-		const element = document.querySelector('#asd');
+		stopsGroups;
+
+		const element = document.querySelector('#map');
 		if (mapOpen) {
 			element.style.height = `${element.scrollHeight}px`;
 			setTimeout(() => {
@@ -62,7 +57,7 @@
 </script>
 
 <div class="flex h-full flex-col {mapOpen ? '' : 'p-2'}">
-	<div class="transition-all" id="asd">
+	<div class="transition-all" id="map">
 		<div class="flex justify-between overflow-hidden">
 			<h2 class=" text-2xl">Fermate più vicine</h2>
 			<div class="bg-primary flex h-9 w-9 items-center justify-center rounded-full">
@@ -74,32 +69,35 @@
 				</div>
 			</div>
 		</div>
-		{#each stopsGroups as stopsGroup}
-			<div class="">
-				<h3 class="text-xl">{stopsGroup[0].stopName}</h3>
-				<div class="flex">
-					{#each stopsGroup as stop}
-						<div class="w-full">
-							<p class="whitespace-nowrap">{stop.stopName}</p>
-							<div class="flex gap-1">
-								{#each stop.arrivals as arrival}
-									<div class="flex flex-col items-center justify-center">
-										<div
-											style="background: #{arrival.routeColor}"
-											class="flex size-8 items-center justify-center rounded"
-										>
-											{arrival.routeShortName}
+		{#if stopsGroups.length === 0 || map.userLatLon === null}
+			<div class="skeleton h-80 w-full"></div>
+		{:else}
+			{#each stopsGroups as stopsGroup}
+				<div class="">
+					<h3 class="text-xl">{stopsGroup[0].stopName}</h3>
+					<div class="flex">
+						{#each stopsGroup as stop}
+							<div class="w-full">
+								<p class="whitespace-nowrap">{stop.stopName}</p>
+								<div class="flex gap-1">
+									{#each stop.arrivals as arrival}
+										<div class="flex flex-col items-center justify-center">
+											<div
+												style="background: #{arrival.routeColor}"
+												class="flex size-8 items-center justify-center rounded"
+											>
+												{arrival.routeShortName}
+											</div>
+											<p>{arrival.ritardo}'</p>
 										</div>
-										<p>{arrival.ritardo}'</p>
-									</div>
-								{/each}
+									{/each}
+								</div>
 							</div>
-						</div>
-					{/each}
+						{/each}
+					</div>
 				</div>
-			</div>
-		{/each}
+			{/each}
+		{/if}
 	</div>
-	<Map bind:mapOpen />
+	<Map bind:mapOpen bind:map />
 </div>
-

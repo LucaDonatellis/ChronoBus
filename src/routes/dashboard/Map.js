@@ -7,7 +7,7 @@ export class Map {
         this.L = undefined;
         this.ControlGeocoder = undefined;
         this.Routing = undefined;
-        this.userLatLng = undefined;
+        this.userLatLon = undefined;
         this.searchLatLng = undefined;
         this.mapElement = mapElement;
 
@@ -42,11 +42,11 @@ export class Map {
             (pos) => {
                 const accuracy = pos.coords.accuracy;
 
-                this.userLatLng = [pos.coords.latitude, pos.coords.longitude];
+                this.userLatLon = [pos.coords.latitude, pos.coords.longitude];
 
                 if (!accuracyCircle) {
-                    accuracyCircle = this.L.circle(this.userLatLng, { radius: accuracy, weight: 2 }).addTo(this.map);
-                    userCircle = this.L.circleMarker(this.userLatLng, {
+                    accuracyCircle = this.L.circle(this.userLatLon, { radius: accuracy, weight: 2 }).addTo(this.map);
+                    userCircle = this.L.circleMarker(this.userLatLon, {
                         fill: true,
                         color: '#ffffff',
                         fillOpacity: 1,
@@ -54,10 +54,10 @@ export class Map {
                         fillColor: '#0045ff',
                         radius: 8
                     }).addTo(this.map);
-                    this.map.setView(this.userLatLng, 15);
+                    this.map.setView(this.userLatLon, 15);
                 } else {
-                    accuracyCircle.setLatLng(this.userLatLng);
-                    userCircle.setLatLng(this.userLatLng);
+                    accuracyCircle.setLatLng(this.userLatLon);
+                    userCircle.setLatLng(this.userLatLon);
                     accuracyCircle.setRadius(accuracy);
                 }
             },
@@ -85,7 +85,7 @@ export class Map {
     drawRoute() {
         this.L.Routing.control({
             waypoints: [
-                this.userLatLng,
+                this.userLatLon,
                 this.searchLatLng
             ],
             routeWhileDragging: true,
@@ -115,7 +115,7 @@ export class Map {
 
                 this.drawRoute();
 
-                this.map.fitBounds(this.L.latLngBounds(this.userLatLng, this.searchLatLng));
+                this.map.fitBounds(this.L.latLngBounds(this.userLatLon, this.searchLatLng));
             })
             .addTo(this.map);
     }

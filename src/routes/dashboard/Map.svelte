@@ -3,10 +3,9 @@
 	import { ChevronDown } from '@lucide/svelte';
 	import { Map } from './Map.js';
 
-	let { mapOpen = $bindable(false) } = $props();
+	let { mapOpen = $bindable(false), map = $bindable(undefined) } = $props();
 
 	let mapElement = $state(null);
-	let map = undefined;
 
 	onMount(async () => {
 		map = new Map(mapElement);
@@ -15,34 +14,37 @@
 	});
 
 	function busStopsMarker() {
-		[
-			[46.07193775170333, 11.119551927073022],
-			[46.07693775170333, 11.120551927073022],
-			[46.07993775170333, 11.121551927073022]
-		].forEach((coords) => {
-			map.addMarker(coords, 'busStopIcon.png');
-		});
+		fetch(`/API/v2/trentino-trasporti/stops`)
+			.then((res) => res.json())
+			.then((stops) => {
+				stops.forEach((stop) => {
+					map.addMarker([stop.stopLat, stop.stopLon], 'busStopIcon.png');
+				});
+			});
 	}
-	function mapClick(open) {
-		mapOpen = open;
+	$effect(() => {
 		mapElement.style.transform = `translateY(-${(!mapOpen && 25) || 0}%)`;
-	}
+	});
 </script>
 
 <div class="relative z-2 h-max flex-grow overflow-hidden transition-all">
 	<button
 		class="btn absolute right-2 bottom-2 z-10000 p-2"
 		hidden={!mapOpen}
-		onclick={()=>{mapClick(false)}}><ChevronDown /></button
+		onclick={() => {
+			mapOpen = false;
+		}}><ChevronDown /></button
 	>
 	<div
 		class="block h-full w-full"
 		role="button"
 		tabindex="0"
-		onclick={()=>{mapClick(true)}}
+		onclick={() => {
+			mapOpen = true;
+		}}
 		onkeydown={(e) => {
 			if (e.key === 'Enter' || e.key === ' ') {
-				mapClick(true);
+				mapOpen = true;
 			}
 		}}
 		aria-pressed={mapOpen}
