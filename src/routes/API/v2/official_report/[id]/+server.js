@@ -1,18 +1,6 @@
-import jwt from "jsonwebtoken";
 import { validateToken } from '$lib/utils/auth.js';
-import { JWT_PASSWORD } from '$env/static/private';
-
-import mongoose from 'mongoose';
-import { MONGO_URI } from '$env/static/private';
-mongoose.connect(MONGO_URI);
-
+import {mongoose,OfficialReport} from "$lib/utils/mongodb.js";
 import { json } from '@sveltejs/kit';
-
-const officialReportSchema = new mongoose.Schema({
-    text: { type: String, required: true },
-    endingTime: { type: Date, required: true },
-});
-const OfficialReport = mongoose.models.OfficialReport || mongoose.model('OfficialReport', officialReportSchema);
 
 export async function GET({ params }) {
     const { valid, payload, error } = validateToken(request);
@@ -36,7 +24,7 @@ export async function GET({ params }) {
     }
 }
 
-export async function DELETE({ params }) {
+export async function DELETE({ request,params }) {
     const { valid, payload, error } = validateToken(request);
 
     if (!valid) {

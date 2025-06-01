@@ -68,9 +68,6 @@
 			});
 			if (res.ok) {
 				announcements = await res.json();
-				announcements.filter((report) => {
-					report.endingTime >= new Date().toISOString();
-				});
 			} else if (res.status === 401) {
 				//goto('/login');
 			}
