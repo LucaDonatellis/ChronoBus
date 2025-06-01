@@ -1,6 +1,5 @@
 import jwt from "jsonwebtoken";
-
-const JWT_SECRET = 'a_secret_key';
+import { JWT_PASSWORD } from '$env/static/private';
 
 export function validateToken(request) {
     const authHeader = request.headers.get('authorization');
@@ -12,7 +11,7 @@ export function validateToken(request) {
     const token = authHeader.split(' ')[1];
 
     try {
-        const payload = jwt.verify(token, JWT_SECRET); 
+        const payload = jwt.verify(token, JWT_PASSWORD); 
         return { valid: true, payload }; 
     } catch (err) {
         return { valid: false, error: 'Token non valido o scaduto' };

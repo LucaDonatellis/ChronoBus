@@ -1,14 +1,11 @@
-import mongoose from 'mongoose';
 import jwt from "jsonwebtoken";
 import { json } from '@sveltejs/kit';
 import { validateToken } from '$lib/utils/auth';
+import { JWT_PASSWORD } from '$env/static/private';
 
-import {
-    JWT_PASSWORD
-} from '$env/static/private';}
-
-
-mongoose.connect('mongodb+srv://lorenzociroluongo:QvmW8bxBiyZIpDRo@cluster0.dthxrpi.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0');
+import mongoose from 'mongoose';
+import { MONGO_URI } from '$env/static/private';
+mongoose.connect(MONGO_URI);
 
 const reportSchema = new mongoose.Schema({
     line: { type: String, required: true },
@@ -39,9 +36,9 @@ export async function POST({ request }) {
         }
 
         const report = new Report({ line, time, crowdedness });
-
+  
         await report.save();
-
+    
         return json({ message: 'Report saved successfully' }, { status: 201 });
     } catch (err) {
         console.error('Error saving report:', err);
@@ -49,7 +46,7 @@ export async function POST({ request }) {
     }
 }
 
-export async function GET({ request }) {
+export async function GET({request}) {
     const { valid, payload, error } = validateToken(request);
 
     if (!valid) {

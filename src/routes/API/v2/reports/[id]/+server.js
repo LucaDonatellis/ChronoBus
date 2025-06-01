@@ -1,0 +1,66 @@
+import jwt from "jsonwebtoken";
+import { validateToken } from '$lib/utils/auth.js';
+import { JWT_PASSWORD } from '$env/static/private';
+import { json } from '@sveltejs/kit';
+
+import mongoose from 'mongoose';
+import { MONGO_URI } from '$env/static/private';
+mongoose.connect(MONGO_URI);
+
+
+const reportSchema = new mongoose.Schema({
+    line: { type: String, required: true },
+    time: { type: Number, required: true },
+    crowdedness: {
+        type: String,
+        enum: ['almost_empty', 'empty_seats', 'seats_full', 'crowded', 'overcrowded'],
+        required: true
+    }
+});
+
+const Report = mongoose.models.Report || mongoose.model('Report', reportSchema);
+
+
+export async function GET({ params }) {
+    const { valid, payload, error } = validateToken(request);
+
+    if (!valid) {
+        return new Response(JSON.stringify({ error }), { status: 401 });
+    }
+
+    const { id } = params;
+
+    try {
+        const report = await Report.findById(id).lean();
+        if (!report) {
+            return json({ error: 'Report not found' }, { status: 404 });
+        }
+
+        return json(report, { status: 200 });
+    } catch (err) {
+        console.error('Error fetching report:', err);
+        return json({ error: 'Invalid ID or server error' }, { status: 500 });
+    }
+}
+
+export async function DELETE({ params }) {
+    const { valid, payload, error } = validateToken(request);
+
+    if (!valid) {
+        return new Response(JSON.stringify({ error }), { status: 401 });
+    }
+
+    const { id } = params;
+
+    try {
+        const deleted = await Report.findByIdAndDelete(id);
+        if (!deleted) {
+            return json({ error: 'Report not found' }, { status: 404 });
+        }
+
+        return json({ message: 'Report deleted successfully' }, { status: 200 });
+    } catch (err) {
+        console.error('Error deleting report:', err);
+        return json({ error: 'Invalid ID or server error' }, { status: 500 });
+    }
+}

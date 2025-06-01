@@ -12,7 +12,7 @@
 		message = '';
 		success = false;
 		try {
-			const res = await fetch('/API/v1/users', {
+			const res = await fetch('/API/v2/users', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ email, password })
@@ -45,7 +45,7 @@
 
 	async function login() {
     try {
-      const res = await fetch('/API/v1/session/login', {
+      const res = await fetch('/API/v2/session/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

@@ -11,7 +11,7 @@
 
     async function sendReport() {
 		try {
-			const res = await fetch('/API/v1/reports', {
+			const res = await fetch('/API/v2/reports', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
