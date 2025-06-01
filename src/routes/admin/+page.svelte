@@ -6,7 +6,6 @@
     let newEndTime = $state('');
     let reports = $state([]);
 
-    // Carica i report all'avvio
     onMount(async () => {
         await fetchReports();
     });

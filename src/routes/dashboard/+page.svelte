@@ -6,6 +6,7 @@
 	let mapOpen = $state(false);
 
 	let map = $state(undefined);
+	let showAnnouncements = $state(false);
 
 	onMount(async () => {
 		setInterval(async () => {
@@ -17,6 +18,7 @@
 				clearInterval(interval);
 			}
 		}, 500);
+		fetchReports();
 	});
 
 	async function updateNearArrivals() {
@@ -54,20 +56,49 @@
 			element.style.height = `${element.scrollHeight}px`;
 		}
 	});
+
+	let announcements = $state([]);
+
+	async function fetchReports() {
+		try {
+			const res = await fetch('/API/v2/official_report', {
+				headers: {
+					Authorization: `Bearer ${localStorage.getItem('token')}`
+				}
+			});
+			if (res.ok) {
+				announcements = await res.json();
+				announcements.filter((report) => {
+					report.endingTime >= new Date().toISOString();
+				});
+			} else if (res.status === 401) {
+				//goto('/login');
+			}
+		} catch (error) {
+			console.error('Error fetching reports:', error);
+		}
+	}
 </script>
 
+<div class="toast toast-top toast-start top-2 left-2 gap-1 max-w-9/12" class:hidden={!showAnnouncements}>
+	{#each announcements as announcement}
+		<div class="alert alert-warning p-2">
+			<span>{announcement.text}</span>a
+		</div>
+	{/each}
+</div>
 <div class="flex h-full flex-col {mapOpen ? '' : 'p-2'}">
 	<div class="transition-all" id="map">
-		<div class="flex justify-between overflow-hidden">
+		<div class="flex justify-between">
 			<h2 class=" text-2xl">Fermate più vicine</h2>
-			<div class="bg-primary flex h-9 w-9 items-center justify-center rounded-full">
+			<button class="bg-primary flex h-9 w-9 items-center justify-center rounded-full" onclick={() => (showAnnouncements = !showAnnouncements)} >
 				<div class="indicator">
 					<span class="indicator-item indicator-bottom badge badge-secondary badge-xs m-0.5 px-1"
-						>23</span
+						>{announcements.length}</span
 					>
 					<TriangleAlert />
 				</div>
-			</div>
+			</button>
 		</div>
 		{#if stopsGroups.length === 0 || map.userLatLon === null}
 			<div class="skeleton h-80 w-full"></div>
