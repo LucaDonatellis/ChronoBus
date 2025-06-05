@@ -3,12 +3,6 @@ import { validateToken } from '$lib/utils/auth';
 import { mongoose, OfficialReport } from "$lib/utils/mongodb.js";
 
 export async function GET({ request }) {
-    const { valid, payload, error } = validateToken(request);
-
-    if (!valid) {
-        return json({ error }, { status: 401 });
-    }
-
     try {
         const reports = await OfficialReport.find().lean();
         return json(reports, { status: 200 });
