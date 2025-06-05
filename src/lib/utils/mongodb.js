@@ -22,8 +22,22 @@ const reportSchema = new mongoose.Schema({
 
 export const Report = mongoose.models.Report || mongoose.model('Report', reportSchema);
 
+const CourseSchema = new mongoose.Schema({
+  id: {
+    type: Number,
+    required: true
+  },
+  notification: {
+    type: Boolean,
+    default: false
+  }
+});
+
 const UserSchema = new mongoose.Schema({
     email: { type: String, unique: true, required: true },
-    password: { type: String, required: true }
+    password: { type: String, required: true },
+    isAdmin: { type: Boolean, default: false },
+    courses: [CourseSchema],
+    notificationsAdvance: {type: Number, default: 0},
 });
 export const User = mongoose.models.User || mongoose.model('User', UserSchema);

@@ -70,8 +70,8 @@
 	}
 </script>
 
-<div class="space-y-6 p-6">
-	<h1 class="text-2xl font-bold">Pannello Admin</h1>
+<div class="p-2">
+	<h1 class="text-2xl font-semibold">Pannello Admin</h1>
 
 	<div class="mt-6 space-y-4">
 		<h2 class="text-xl font-semibold">Nuova Segnalazione</h2>
@@ -83,6 +83,9 @@
 
 	<div class="mt-8">
 		<h2 class="mb-4 text-xl font-semibold">Segnalazioni</h2>
+		{#if reports.length === 0}
+			<p>Nessuna segnalazione disponibile.</p>
+		{/if}
 		{#each reports as report (report._id)}
 			<div class="card bg-base-200 mb-3 p-4 shadow">
 				<div class="flex items-center justify-between">

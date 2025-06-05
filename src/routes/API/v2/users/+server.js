@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import { JWT_SECRET } from '$env/static/private';
 import { User } from '$lib/utils/mongodb.js';
 import { json } from '@sveltejs/kit';
+import { validateToken } from '$lib/utils/auth.js';
 
 /**
  * Gestisce la registrazione di un nuovo utente tramite richiesta POST.
@@ -69,3 +70,20 @@ export async function POST({ request }) {
   }
 }
 
+export async function GET({ request }) {
+  const { valid, payload, error } = validateToken(request);
+
+  if (!valid) {
+    return json({ error }, { status: 401 });
+  }
+  if (!payload.isAdmin) {
+    return json({ error: 'Unauthorized' }, { status: 403 });
+  }
+  try {
+    const users = await User.find().lean();
+    return json(users, { status: 200 });
+  } catch (err) {
+    console.error('Error fetching user:', err);
+    return json({ error: 'Server error' }, { status: 500 });
+  }
+}

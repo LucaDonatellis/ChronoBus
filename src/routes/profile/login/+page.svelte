@@ -3,6 +3,7 @@
 	import { successAlert, errorAlert } from '$lib/stores/alert';
 	import { goto } from '$app/navigation';
 	import { error } from '@sveltejs/kit';
+	import { isAdmin } from '$lib/stores/admin';
 
 	let email = $state('');
 	let password = $state('');
@@ -33,6 +34,7 @@
 	}
 
 	async function login() {
+
 		try {
 			const res = await fetch('/API/v2/session/login', {
 				method: 'POST',
@@ -41,10 +43,11 @@
 				},
 				body: JSON.stringify({ email, password })
 			});
-			const data = await res.json();
+			const data = await res.json();			
 
 			if (res.ok && data.token) {
 				successAlert(data.message || 'Login eseguito!');
+				isAdmin.set(data.isAdmin || false);
 
 				localStorage.setItem('token', data.token);
 				goto('/dashboard');
@@ -69,7 +72,7 @@
 
 <div class="register-container">
 	<h2>Auth</h2>
-	<form on:submit|preventDefault={choice}>
+	<form onsubmit={choice}>
 		<div style="display: grid; gap: 1rem; ">
 			<label for="username">Email</label>
 			<input id="username" type="email" bind:value={email} required autocomplete="username" />
@@ -88,11 +91,6 @@
 </div>
 
 <style>
-	body {
-		background: #f3f6fa;
-		font-family: 'Segoe UI', Arial, sans-serif;
-	}
-
 	.register-container {
 		background: #fff;
 		max-width: 340px;
@@ -137,27 +135,6 @@
 	input[type='email']:focus,
 	input[type='password']:focus {
 		border-color: black;
-	}
-
-	.error-message {
-		color: #e82c2a;
-		background: #fff2f2;
-		padding: 8px 10px;
-		border-radius: 4px;
-		margin-bottom: 4px;
-		font-size: 14px;
-		text-align: center;
-	}
-
-	.success-message {
-		color: #208229;
-		background: #ebfaef;
-		padding: 8px 12px;
-		border-radius: 4px;
-		margin-bottom: 4px;
-		font-size: 15px;
-		text-align: center;
-		margin-top: 12px;
 	}
 
 	button {

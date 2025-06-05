@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import { JWT_PASSWORD } from '$env/static/private';
 import { mongoose, User } from '$lib/utils/mongodb.js';
 import { json } from '@sveltejs/kit';
+import { isAdmin } from '$lib/stores/admin';
 
 /**
  * Gestisce il login di un utente tramite richiesta POST.
@@ -48,12 +49,12 @@ export async function POST({ request }) {
 
         if (valid) {
             const token = jwt.sign(
-                { userId: user._id, email: user.email },
+                { userId: user._id, email: user.email,isAdmin: user.isAdmin },
                 JWT_PASSWORD,
                 { expiresIn: "30d" }
             );
             return json(
-                { message: 'Login successful', token },
+                { message: 'Login successful', token, isAdmin: user.isAdmin },
                 { status: 201 }
             );
         }

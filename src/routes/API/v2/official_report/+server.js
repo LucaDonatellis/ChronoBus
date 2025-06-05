@@ -23,6 +23,9 @@ export async function POST({ request }) {
     if (!valid) {
         return json({ error }, { status: 401 });
     }
+    if (!payload.isAdmin) {
+        return json({ error: 'Unauthorized' }, { status: 403 });
+    }
 
     try {
         const data = await request.json();

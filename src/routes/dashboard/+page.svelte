@@ -87,7 +87,7 @@
 <div class="flex h-full flex-col {mapOpen ? '' : 'p-2'}">
 	<div class="transition-all" id="map">
 		<div class="flex justify-between">
-			<h2 class=" text-2xl">Fermate più vicine</h2>
+			<h2 class=" text-2xl font-semibold">Fermate più vicine</h2>
 			<button class="bg-primary flex h-9 w-9 items-center justify-center rounded-full" onclick={() => (showAnnouncements = !showAnnouncements)} >
 				<div class="indicator">
 					<span class="indicator-item indicator-bottom badge badge-secondary badge-xs m-0.5 px-1"

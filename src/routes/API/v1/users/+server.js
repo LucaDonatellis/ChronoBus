@@ -1,16 +1,7 @@
-import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import jwt from "jsonwebtoken";
-
-mongoose.connect('mongodb+srv://lorenzociroluongo:QvmW8bxBiyZIpDRo@cluster0.dthxrpi.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0');
-
-const UserSchema = new mongoose.Schema({
-  email: { type: String, unique: true, required: true },
-  password: { type: String, required: true }
-});
-const User = mongoose.models.User || mongoose.model('User', UserSchema);
-
-const JWT_SECRET = "a_secret_key";
+import { JWT_SECRET } from '$env/static/private';
+import { User } from '$lib/utils/mongodb.js';
 
 /**
  * Gestisce la registrazione di un nuovo utente tramite richiesta POST.
@@ -39,16 +30,16 @@ export async function POST({ request }) {
     const { email, password } = await request.json();
 
     if (!email || !password) {
-      return new Response(
-        JSON.stringify({ error: 'Email e password sono obbligatorie.' }),
+      return json(
+        { error: 'Email and password required.' },
         { status: 400 }
       );
     }
 
     const existing = await User.findOne({ email });
     if (existing) {
-      return new Response(
-        JSON.stringify({ error: 'Email già registrata.' }),
+      return json(
+        { error: 'Account already exists with this email.' },
         { status: 409 }
       );
     }
@@ -64,14 +55,13 @@ export async function POST({ request }) {
       { expiresIn: "30d" }
     );
 
-    return new Response(
-      JSON.stringify({ success: true, token, message: 'Registrazione avvenuta con successo.' }),
+    return json(
+      { message: 'Registration successful', token },
       { status: 201 }
     );
   } catch (err) {
-    console.error(err);
-    return new Response(
-      JSON.stringify({ error: 'Errore interno del server.' }),
+    return json(
+      { error: 'Server error.' },
       { status: 500 }
     );
   }
