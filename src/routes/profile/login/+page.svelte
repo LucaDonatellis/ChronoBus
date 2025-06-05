@@ -1,16 +1,13 @@
 <script>
-	import { LogIn } from "@lucide/svelte";
+	import { LogIn } from '@lucide/svelte';
+	import { successAlert, errorAlert } from '$lib/stores/alert';
+	import { goto } from '$app/navigation';
+	import { error } from '@sveltejs/kit';
 
-	let email = '';
-	let password = '';
-	let error = '';
-	let success = false;
-	let message = '';
+	let email = $state('');
+	let password = $state('');
 
 	async function register() {
-		error = '';
-		message = '';
-		success = false;
 		try {
 			const res = await fetch('/API/v2/users', {
 				method: 'POST',
@@ -23,61 +20,48 @@
 				email = '';
 				password = '';
 				localStorage.setItem('token', data.token);
-				success = true;
-				error = '';
-				message = data.message || 'Registrazione effettuata con successo.';
-				setTimeout(() => {
-					window.location.href = '/dashboard';
-				}, 1200); // attendo un secondo per mostrare il messaggio
+				successAlert(data.message || 'Registrazione effettuata con successo.');
+				goto('/dashboard');
 			} else if (data.error && data.error.toLowerCase().includes('registrata')) {
-				// Errore: email già esistente
-				error = "L'email inserita è già registrata. Prova con un'altra email.";
-				success = false;
+				errorAlert("L'email inserita è già registrata. Prova con un'altra email.");
 			} else {
-				error = data.error || 'Errore backend';
-				success = false;
+				errorAlert(data.error || 'Errore backend');
 			}
 		} catch (e) {
-			error = 'Errore di connessione.';
-			success = false;
+			errorAlert('Errore di rete.');
 		}
 	}
 
 	async function login() {
-    try {
-      const res = await fetch('/API/v2/session/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await res.json();
+		try {
+			const res = await fetch('/API/v2/session/login', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ email, password })
+			});
+			const data = await res.json();
 
-      if (res.ok && data.token) {
-        message = data.message || 'Login eseguito!';
-		success = true;
+			if (res.ok && data.token) {
+				successAlert(data.message || 'Login eseguito!');
 
-        localStorage.setItem('token', data.token);
-		setTimeout(() => {
-			window.location.href = '/dashboard';
-		}, 1200); 
-      } else {
-		success = false;
-        error = data.error || 'Login fallito';
-      }
-    } catch (err) {
-	  success = false;
-      error = 'Errore di rete';
-    }
-  }
+				localStorage.setItem('token', data.token);
+				goto('/dashboard');
+			} else {
+				errorAlert(data.error || 'Login fallito');
+			}
+		} catch (err) {
+			errorAlert('Errore di rete');
+		}
+	}
 
-	function choice(event){
+	function choice(event) {
 		event.preventDefault();
-    	const buttonValue = event.submitter?.value;
-    	if(buttonValue=="signin"){
+		const buttonValue = event.submitter?.value;
+		if (buttonValue == 'signin') {
 			login();
-		}else if(buttonValue=="signup"){
+		} else if (buttonValue == 'signup') {
 			register();
 		}
 	}
@@ -86,14 +70,7 @@
 <div class="register-container">
 	<h2>Auth</h2>
 	<form on:submit|preventDefault={choice}>
-		{#if error}
-			<div class="error-message">{error}</div>
-		{/if}
-		{#if success && message}
-			<div class="success-message">{message}</div>
-		{/if}
 		<div style="display: grid; gap: 1rem; ">
-
 			<label for="username">Email</label>
 			<input id="username" type="email" bind:value={email} required autocomplete="username" />
 			<label for="password">Password</label>

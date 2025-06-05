@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import { getfwt, postfwt, deletefwt } from '$lib/utils/fetch.js';
-	import { errorAlert } from '$lib/stores/alert';
+	import { errorAlert, successAlert } from '$lib/stores/alert';
 
 	let newText = $state('');
 	let newEndTime = $state('');
@@ -26,10 +26,10 @@
 	}
 
 	async function addReport() {
-		if (!newText || !newEndTime){
+		if (!newText || !newEndTime) {
 			errorAlert('Testo e data di scadenza sono obbligatori.');
 			return;
-		};
+		}
 
 		postfwt('official_report', {
 			text: newText,
@@ -39,6 +39,7 @@
 				fetchReports();
 				newText = '';
 				newEndTime = '';
+				successAlert('Segnalazione aggiunta con successo.');
 			})
 			.catch((error) => {
 				errorAlert(error);
@@ -52,6 +53,7 @@
 		deletefwt(`official_report/${id}`)
 			.then(() => {
 				reports = reports.filter((report) => report._id !== id);
+				successAlert('Segnalazione eliminata con successo.');
 			})
 			.catch((error) => {
 				errorAlert(error);
@@ -63,6 +65,7 @@
 
 	function logout() {
 		localStorage.removeItem('token');
+		successAlert('Logout effettuato con successo.');
 		goto('/profile/login');
 	}
 </script>

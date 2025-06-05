@@ -9,3 +9,21 @@ const officialReportSchema = new mongoose.Schema({
     expireAt: { type: Date, required: true, index: { expireAfterSeconds: 0 } },
 });
 export const OfficialReport = mongoose.models.OfficialReport || mongoose.model('OfficialReport', officialReportSchema);
+
+const reportSchema = new mongoose.Schema({
+    line: { type: String, required: true },
+    time: { type: Number, required: true },
+    crowdedness: {
+        type: String,
+        enum: ['almost_empty', 'empty_seats', 'seats_full', 'crowded', 'overcrowded'],
+        required: true
+    }
+});
+
+export const Report = mongoose.models.Report || mongoose.model('Report', reportSchema);
+
+const UserSchema = new mongoose.Schema({
+    email: { type: String, unique: true, required: true },
+    password: { type: String, required: true }
+});
+export const User = mongoose.models.User || mongoose.model('User', UserSchema);

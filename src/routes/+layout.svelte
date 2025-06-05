@@ -10,7 +10,7 @@
 <div class="relative" style="height: calc(100vh - 4rem)">
 	{@render children()}
 	{#if $alert}
-		<div class="absolute bottom-4 w-full p-2">
+		<div class="absolute bottom-4 w-full p-2 z-10000">
 			<div role="alert" class="alert w-full {$alert.class}">
 				<span>{$alert.text}</span>
 			</div>

@@ -1,6 +1,6 @@
 import { set } from 'mongoose';
 import { writable } from 'svelte/store';
-export const alert = writable({});
+export const alert = writable(undefined);
 
 export function errorAlert(message) {
     alert.set({ class: 'alert-error', text: message.message || message });

@@ -1,16 +1,8 @@
 import bcrypt from 'bcryptjs';
 import jwt from "jsonwebtoken";
 import { JWT_PASSWORD } from '$env/static/private';
-
-import mongoose from 'mongoose';
-import { MONGO_URI } from '$env/static/private';
-mongoose.connect(MONGO_URI);
-
-const UserSchema = new mongoose.Schema({
-    email: { type: String, unique: true, required: true },
-    password: { type: String, required: true }
-});
-const User = mongoose.models.User || mongoose.model('User', UserSchema);
+import { mongoose, User } from '$lib/utils/mongodb.js';
+import { json } from '@sveltejs/kit';
 
 /**
  * Gestisce il login di un utente tramite richiesta POST.
@@ -38,16 +30,16 @@ export async function POST({ request }) {
         const { email, password } = await request.json();
 
         if (!email || !password) {
-            return new Response(
-                JSON.stringify({ error: 'Email e password sono obbligatorie.' }),
+            return json(
+                { error: 'Email and password required.' },
                 { status: 400 }
             );
         }
 
         const existing = await User.findOne({ email });
         if (!existing) {
-            return new Response(
-                JSON.stringify({ error: 'Email non trovata' }),
+            return json(
+                { error: 'Email not found.' },
                 { status: 409 }
             );
         }
@@ -60,15 +52,14 @@ export async function POST({ request }) {
                 JWT_PASSWORD,
                 { expiresIn: "30d" }
             );
-            return new Response(
-                JSON.stringify({ success: true, token, message: 'Login avvenuto con successo.' }),
+            return json(
+                { message: 'Login successful', token },
                 { status: 201 }
             );
         }
     } catch (err) {
-        console.error(err);
-        return new Response(
-            JSON.stringify({ error: 'Errore interno del server.' }),
+        return json(
+            { error: 'Server error.' },
             { status: 500 }
         );
     }
