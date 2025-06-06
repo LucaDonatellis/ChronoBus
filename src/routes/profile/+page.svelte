@@ -1,5 +1,6 @@
 <script>
 	import { goto } from '$app/navigation';
+	import { isAdmin } from '$lib/stores/admin';
 	import { successAlert } from '$lib/stores/alert';
 	import { onMount } from 'svelte';
 
@@ -19,6 +20,7 @@
 		if (token) {
 			successAlert('Logout effettuato con successo');
 			localStorage.removeItem('token');
+			isAdmin.set(false);
 			goto('/profile/login');
 		} else {
 			errorError('Logout fallito');

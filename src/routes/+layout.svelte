@@ -1,11 +1,34 @@
 <script>
 	import '../app.css';
-	import { TriangleAlert, LayoutDashboard, User, ChartLine, MailWarning,Bolt } from '@lucide/svelte';
+	import {
+		TriangleAlert,
+		LayoutDashboard,
+		User,
+		ChartLine,
+		MailWarning,
+		Bolt
+	} from '@lucide/svelte';
 	import { page } from '$app/state';
 	import { alert } from '$lib/stores/alert';
 	import { isAdmin } from '$lib/stores/admin';
+	import { onMount } from 'svelte';
 
 	let { children } = $props();
+
+	function decodeJwt(token) {
+		try {
+			const [, payloadBase64] = token.split('.');
+			const payloadJson = atob(payloadBase64);
+			return JSON.parse(payloadJson);
+		} catch {
+			return null;
+		}
+	}
+
+	onMount(() => {
+		const token = localStorage.getItem('token');
+		isAdmin.set(token ? decodeJwt(token).isAdmin || false : false);
+	});
 </script>
 
 {#if $alert}
