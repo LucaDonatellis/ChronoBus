@@ -47,17 +47,22 @@ export async function POST({ request }) {
         let user = await User.findOne({ email });
         const valid = await bcrypt.compare(password, user.password);
 
-        if (valid) {
-            const token = jwt.sign(
-                { userId: user._id, email: user.email,isAdmin: user.isAdmin },
-                JWT_PASSWORD,
-                { expiresIn: "30d" }
-            );
+        if (!valid) {
             return json(
-                { message: 'Login successful', token, isAdmin: user.isAdmin },
-                { status: 201 }
+                { error: 'Invalid password.' },
+                { status: 401 }
             );
         }
+        const token = jwt.sign(
+            { userId: user._id, email: user.email, isAdmin: user.isAdmin },
+            JWT_PASSWORD,
+            { expiresIn: "30d" }
+        );
+        return json(
+            { message: 'Login successful', token, isAdmin: user.isAdmin },
+            { status: 201 }
+        );
+
     } catch (err) {
         return json(
             { error: 'Server error.' },

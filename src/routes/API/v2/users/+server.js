@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt from "jsonwebtoken";
-import { JWT_SECRET } from '$env/static/private';
+import { JWT_PASSWORD } from '$env/static/private';
 import { User } from '$lib/utils/mongodb.js';
 import { json } from '@sveltejs/kit';
 import { validateToken } from '$lib/utils/auth.js';
@@ -52,8 +52,8 @@ export async function POST({ request }) {
     await user.save();
 
     const token = jwt.sign(
-      { userId: user._id, email: user.email },
-      JWT_SECRET,
+      { userId: user._id, email: user.email, isAdmin: user.isAdmin },
+      JWT_PASSWORD,
       { expiresIn: "30d" }
     );
 
