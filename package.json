@@ -44,6 +44,7 @@
 	"dependencies": {
 		"@lucide/svelte": "^0.510.0",
 		"bcryptjs": "^3.0.2",
+		"cally": "^0.8.0",
 		"daisyui": "^5.0.35",
 		"jsonwebtoken": "^9.0.2",
 		"leaflet": "^1.9.4",

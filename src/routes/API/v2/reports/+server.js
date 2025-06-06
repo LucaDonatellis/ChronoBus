@@ -28,15 +28,46 @@ export async function POST({ request }) {
     }
 }
 
-export async function GET({ request }) {
-    const { valid, payload, error } = validateToken(request);
+export async function GET({ request,url }) {
+    const dayParam = url.searchParams.get('day');
+    const groupByLine = url.searchParams.get('groupBy') === 'line';
 
-    if (!valid) {
-        return json({ error }, { status: 401 });
+    let query = {};
+    if (dayParam) {
+        try {
+			const date = new Date(dayParam);
+            if (isNaN(date.getTime())) {
+                return json({ error: 'Invalid day format. Use YYYY-MM-DD' }, { status: 400 });
+            }
+
+            const start = new Date(date);
+            start.setHours(0, 0, 0, 0);
+
+            const end = new Date(date);
+            end.setHours(23, 59, 59, 999);
+
+            query = { time: { $gte: start, $lte: end } };
+        } catch {
+            return json({ error: 'Invalid day format. Use YYYY-MM-DD' }, { status: 400 });
+        }
     }
 
     try {
-        const reports = await Report.find().sort({ time: -1 }).lean();
+        let reports = await Report.find(query).sort({ time: -1 }).lean();
+        if (groupByLine) {
+            const groupedReports = {};
+            reports.forEach(report => {
+                if (!groupedReports[report.line]) {
+                    groupedReports[report.line] = [];
+                }
+                groupedReports[report.line].push(report);
+            });
+            reports = Object.entries(groupedReports).map(([line, reports]) => ({
+                line,
+                reports
+            }));
+        }
+
         return json(reports, { status: 200 });
     } catch (err) {
         return json({ error: 'Server error' }, { status: 500 });
