@@ -66,19 +66,19 @@
 	}
 </script>
 
-<div class="p-2">
-	<h1 class="text-2xl font-semibold">Pannello Admin</h1>
-
-	<div class="mt-6 space-y-4">
+<div class="p-2 flex-1 overflow-hidden flex flex-col">
+	<div class="space-y-2">
 		<h2 class="text-xl font-semibold">Nuova Segnalazione</h2>
+		<h3 class="h3 font-medium">Annuncio</h3>
 		<textarea placeholder="Testo" class="textarea input-bordered w-full" bind:value={newText}
 		></textarea>
+		<h3 class="h3 font-medium">Scadenza</h3>
 		<input type="datetime-local" class="input input-bordered w-full" bind:value={newEndTime} />
-		<button class="btn btn-primary mt-2" onclick={addReport}>Aggiungi</button>
+		<button class="btn btn-primary w-full" onclick={addReport}>Aggiungi</button>
 	</div>
 
-	<div class="mt-8">
-		<h2 class="mb-4 text-xl font-semibold">Segnalazioni</h2>
+	<h2 class="mt-2 mb-2 text-xl font-semibold">Segnalazioni</h2>
+	<div class="overflow-scroll flex-1">
 		{#if officialReports.length === 0}
 			<p>Nessuna segnalazione presente.</p>
 		{/if}

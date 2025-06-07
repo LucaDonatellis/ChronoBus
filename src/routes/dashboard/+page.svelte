@@ -80,7 +80,7 @@
 <div class="toast toast-top toast-start top-2 left-2 gap-1 max-w-9/12" class:hidden={!showAnnouncements}>
 	{#each announcements as announcement}
 		<div class="alert alert-warning p-2">
-			<span>{announcement.text}</span>a
+			<span>{announcement.text}</span>
 		</div>
 	{/each}
 </div>
