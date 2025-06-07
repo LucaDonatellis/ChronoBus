@@ -28,9 +28,9 @@
 	}
 </script>
 
-<div>
-	<button onclick={gotologin} class="rounded bg-blue-600 px-4 py-2 text-white"> Login </button>
+<div class="flex gap-2 p-2">
+	<button onclick={gotologin} class="btn btn-primary flex-1"> Login </button>
 	{#if token}
-		<button onclick={logout} class="rounded bg-blue-600 px-4 py-2 text-white"> Logout </button>
+		<button onclick={logout} class="btn btn-secondary flex-1"> Logout </button>
 	{/if}
 </div>

@@ -86,5 +86,5 @@
 </div>
 <div class="p-2">
 	<h3 class="p-2 font-medium">Data</h3>
-	<input type="date" class="input" bind:value={date} onchange={updateChart} />
+	<input type="date" class="input w-full" bind:value={date} onchange={updateChart} />
 </div>
