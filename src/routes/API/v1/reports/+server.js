@@ -3,7 +3,10 @@ import jwt from "jsonwebtoken";
 import { json } from '@sveltejs/kit';
 import { validateToken } from '$lib/utils/auth';
 
-const JWT_SECRET = 'a_secret_key';
+import {
+    JWT_PASSWORD
+} from '$env/static/private';}
+
 
 mongoose.connect('mongodb+srv://lorenzociroluongo:QvmW8bxBiyZIpDRo@cluster0.dthxrpi.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0');
 
@@ -36,9 +39,9 @@ export async function POST({ request }) {
         }
 
         const report = new Report({ line, time, crowdedness });
-  
+
         await report.save();
-    
+
         return json({ message: 'Report saved successfully' }, { status: 201 });
     } catch (err) {
         console.error('Error saving report:', err);
@@ -46,7 +49,7 @@ export async function POST({ request }) {
     }
 }
 
-export async function GET({request}) {
+export async function GET({ request }) {
     const { valid, payload, error } = validateToken(request);
 
     if (!valid) {

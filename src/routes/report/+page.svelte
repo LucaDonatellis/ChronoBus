@@ -1,40 +1,26 @@
 <script>
-    import {OctagonAlert, Bus, BookDashed, Armchair, Users} from "@lucide/svelte"
+	import { goto } from '$app/navigation';
+	import { errorAlert, successAlert } from '$lib/stores/alert';
+	import { postfwt } from '$lib/utils/fetch';
+	import { OctagonAlert, Bus, BookDashed, Armchair, Users } from '@lucide/svelte';
+
 	const lines = ['1', '2', '3', '4', '5', '5/', 'CM'];
 	let line = $state();
 	let time = $state();
 	let crowdedness = $state();
 
-    let message = $state();
-    let success = $state();
-    let error = $state();
-
-    async function sendReport() {
-		try {
-			const res = await fetch('/API/v1/reports', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem("token")}`
-				},
-				body: JSON.stringify({ line, time,crowdedness })
+	async function sendReport() {
+		postfwt('reports', { line, time, crowdedness })
+			.then((data) => {
+				successAlert(data.message || 'Report inviato con successo!');
+				goto('/dashboard');
+			})
+			.catch((err) => {
+				errorAlert(err || 'Errore backend');
+				if (err.status === 401) {
+					goto('/profile/login');
+				}
 			});
-			const data = await res.json();
-
-			if (res.ok) {
-				message = data.message || 'Report inviato con successo!';
-				success = true;
-				setTimeout(() => {
-					window.location.href = '/dashboard';
-				}, 1200); 
-			} else {
-			}
-		} catch (err) {
-            console.log(err);
-            
-			success = false;
-			error = 'Errore di rete';
-		}
 	}
 </script>
 
@@ -82,5 +68,3 @@
 		<button class="btn w-full" onclick={sendReport}>Invia</button>
 	</div>
 </div>
-{crowdedness}
-{error} {message} {success}

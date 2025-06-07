@@ -1,12 +1,44 @@
 <script>
 	import '../app.css';
-	import { TriangleAlert, LayoutDashboard, User, ChartLine, MailWarning } from '@lucide/svelte';
+	import {
+		TriangleAlert,
+		LayoutDashboard,
+		User,
+		ChartLine,
+		MailWarning,
+		Bolt
+	} from '@lucide/svelte';
 	import { page } from '$app/state';
+	import { alert } from '$lib/stores/alert';
+	import { isAdmin } from '$lib/stores/admin';
+	import { onMount } from 'svelte';
 
 	let { children } = $props();
+
+	function decodeJwt(token) {
+		try {
+			const [, payloadBase64] = token.split('.');
+			const payloadJson = atob(payloadBase64);
+			return JSON.parse(payloadJson);
+		} catch {
+			return null;
+		}
+	}
+
+	onMount(() => {
+		const token = localStorage.getItem('token');
+		isAdmin.set(token ? decodeJwt(token).isAdmin || false : false);
+	});
 </script>
 
-<div class="" style="height: calc(100vh - 4rem)">
+{#if $alert}
+	<div class="absolute bottom-16 z-10000 w-full p-2">
+		<div role="alert" class="alert w-full {$alert.class}">
+			<span>{$alert.text}</span>
+		</div>
+	</div>
+{/if}
+<div class="relative" style="height: calc(100vh - 4rem)">
 	{@render children()}
 </div>
 <div class="dock dock-md">
@@ -28,4 +60,10 @@
 		<MailWarning />
 		<span class="dock-label">Segnala</span>
 	</a>
+	{#if $isAdmin}
+		<a class:dock-active={page.url.pathname === '/admin'} href="/admin">
+			<Bolt />
+			<span class="dock-label">Admin</span>
+		</a>
+	{/if}
 </div>
