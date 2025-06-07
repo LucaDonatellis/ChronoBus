@@ -6,25 +6,18 @@
 	import { browser } from '$app/environment';
 	import { get } from 'mongoose';
 
-	let newText = $state('');
-	let newEndTime = $state('');
-	let officialReports = $state([]);
-
 	let calendarElement = $state(null);
 	let reports = $state([]);
 
 	onMount(async () => {
-		fetchReports();
 		if (browser) {
 			await import('cally');
 			calendarElement.addEventListener('focusday', calendarDateHandler);
 		}
-	});
-
-	function fetchReports() {
-		getfwt('official_report')
+		const date = new Date().toISOString().split('T')[0];
+		getfwt(`reports?date=${date}&groupBy=line`)
 			.then((data) => {
-				officialReports = data;
+				reports = data;
 			})
 			.catch((error) => {
 				errorAlert(error);
@@ -32,52 +25,13 @@
 					goto('/profile/login');
 				}
 			});
-	}
-
-	async function addReport() {
-		if (!newText || !newEndTime) {
-			errorAlert('Testo e data di scadenza sono obbligatori.');
-			return;
-		}
-
-		postfwt('official_report', {
-			text: newText,
-			expireAt: newEndTime
-		})
-			.then(() => {
-				fetchReports();
-				newText = '';
-				newEndTime = '';
-				successAlert('Segnalazione aggiunta con successo.');
-			})
-			.catch((error) => {
-				errorAlert(error);
-				if (error.status === 401) {
-					goto('/profile/login');
-				}
-			});
-	}
-
-	async function deleteReport(id) {
-		deletefwt(`official_report/${id}`)
-			.then(() => {
-				officialReports = officialReports.filter((report) => report._id !== id);
-				successAlert('Segnalazione eliminata con successo.');
-			})
-			.catch((error) => {
-				errorAlert(error);
-				if (error.status === 401) {
-					goto('/profile/login');
-				}
-			});
-	}
+	});
 
 	function calendarDateHandler(event) {
 		const date = event.detail.toISOString().split('T')[0];
 		getfwt(`reports?date=${date}&groupBy=line`)
 			.then((data) => {
 				reports = data;
-				console.log('reports', reports);
 			})
 			.catch((error) => {
 				errorAlert(error);
@@ -89,35 +43,6 @@
 </script>
 
 <div class="p-2">
-	<h1 class="text-2xl font-semibold">Pannello Admin</h1>
-
-	<div class="mt-6 space-y-4">
-		<h2 class="text-xl font-semibold">Nuova Segnalazione</h2>
-		<textarea placeholder="Testo" class="textarea input-bordered w-full" bind:value={newText}
-		></textarea>
-		<input type="datetime-local" class="input input-bordered w-full" bind:value={newEndTime} />
-		<button class="btn btn-primary mt-2" onclick={addReport}>Aggiungi</button>
-	</div>
-
-	<div class="mt-8">
-		<h2 class="mb-4 text-xl font-semibold">Segnalazioni</h2>
-		{#if officialReports.length === 0}
-			<p>Nessuna segnalazione disponibile.</p>
-		{/if}
-		{#each officialReports as report (report._id)}
-			<div class="card bg-base-200 mb-3 p-4 shadow">
-				<div class="flex items-center justify-between">
-					<div>
-						<p><strong>Testo:</strong> {report.text}</p>
-						<p><strong>Fine:</strong> {new Date(report.expireAt).toLocaleString()}</p>
-					</div>
-					<button class="btn btn-sm btn-error" onclick={() => deleteReport(report._id)}
-						>Elimina</button
-					>
-				</div>
-			</div>
-		{/each}
-	</div>
 	<calendar-date
 		class="cally bg-base-100 border-base-300 rounded-box w-full border shadow-lg"
 		bind:this={calendarElement}
@@ -175,7 +100,16 @@
 						<td>{reportLine.line}</td>
 						{#each { length: 24 } as _, hour}
 							<td
-								data-tip={ Object.entries(reportLine.reports.filter((r) => new Date(r.time).getHours() === hour).reduce((acc, r) => ({ ...acc, [r.crowdedness]: (acc[r.crowdedness] || 0) + 1 }), {})).map(([k, v]) => `${k}: ${v}`).join(', ')}
+								data-tip={Object.entries(
+									reportLine.reports
+										.filter((r) => new Date(r.time).getHours() === hour)
+										.reduce(
+											(acc, r) => ({ ...acc, [r.crowdedness]: (acc[r.crowdedness] || 0) + 1 }),
+											{}
+										)
+								)
+									.map(([k, v]) => `${k}: ${v}`)
+									.join(', ')}
 								class="tooltip table-cell bg-{['blue', 'green', 'yellow', 'orange', 'red'][
 									Math.round(
 										reportLine.reports

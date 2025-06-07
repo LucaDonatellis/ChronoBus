@@ -29,13 +29,13 @@ export async function POST({ request }) {
 }
 
 export async function GET({ request,url }) {
-    const dayParam = url.searchParams.get('day');
+    const dayParam = url.searchParams.get('date');
     const groupByLine = url.searchParams.get('groupBy') === 'line';
 
     let query = {};
     if (dayParam) {
         try {
-			const date = new Date(dayParam);
+            const date = new Date(dayParam);
             if (isNaN(date.getTime())) {
                 return json({ error: 'Invalid day format. Use YYYY-MM-DD' }, { status: 400 });
             }
@@ -47,6 +47,8 @@ export async function GET({ request,url }) {
             end.setHours(23, 59, 59, 999);
 
             query = { time: { $gte: start, $lte: end } };
+            
+            
         } catch {
             return json({ error: 'Invalid day format. Use YYYY-MM-DD' }, { status: 400 });
         }
