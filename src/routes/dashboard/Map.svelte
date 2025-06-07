@@ -17,8 +17,12 @@
 		fetch(`/API/v2/trentino-trasporti/stops`)
 			.then((res) => res.json())
 			.then((stops) => {
-				stops.forEach((stop) => {
-					map.addMarker([stop.stopLat, stop.stopLon], 'busStopIcon.png');
+				
+				stops.forEach((stop) => {					
+					const lines = stop.routes.map((r) => {return {name: r.routeShortName,color:"#"+r.routeColor}}).filter(e=>e.color!="#null");
+					if (lines.length > 0) {
+						map.addBusStop([stop.stopLat, stop.stopLon], stop.stopName,lines, "#000000");
+					}
 				});
 			});
 	}
