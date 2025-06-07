@@ -7,9 +7,11 @@
 
 	let map = $state(undefined);
 	let showAnnouncements = $state(false);
+	let interval;
 
 	onMount(async () => {
-		setInterval(async () => {
+		clearInterval(interval);
+		interval = setInterval(async () => {
 			updateNearArrivals();
 		}, 10000);
 		let interval = setInterval(() => {

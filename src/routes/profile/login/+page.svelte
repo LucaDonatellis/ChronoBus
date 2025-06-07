@@ -85,8 +85,8 @@
 				autocomplete="new-password"
 			/>
 		</div>
-		<button type="submit" value="signin">Sign in</button>
-		<button type="submit" value="signup">Sign up</button>
+		<button type="submit" value="signin" class="btn btn-primary">Sign in</button>
+		<button type="submit" value="signup" class="btn btn-secondary">Sign up</button>
 	</form>
 </div>
 
@@ -135,22 +135,5 @@
 	input[type='email']:focus,
 	input[type='password']:focus {
 		border-color: black;
-	}
-
-	button {
-		background: #385ad1;
-		color: white;
-		border: none;
-		border-radius: 6px;
-		padding: 11px 0;
-		font-size: 17px;
-		cursor: pointer;
-		font-weight: 500;
-		letter-spacing: 1px;
-		transition: background 0.2s;
-	}
-
-	button:hover {
-		background: #2745a6;
 	}
 </style>
