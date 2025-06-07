@@ -9,7 +9,7 @@ import {
 } from '$env/static/private';
 
 function haversine(lat1, lon1, lat2, lon2) {
-	const R = 6371e3; // raggio terrestre in metri
+	const R = 6371e3;
 	const toRad = deg => deg * Math.PI / 180;
 
 	const φ1 = toRad(lat1);
@@ -52,10 +52,8 @@ export async function GET({ request, url }) {
 
 	let data = await res.json();
 
-	// Filtra per Trento
 	data = data.filter(stop => stop.town === 'Trento');
 
-	// Se lat/lon sono forniti, calcola distanza e ordina
 	if (!isNaN(lat) && !isNaN(lon)) {
 		data = data
 			.map(stop => ({
@@ -65,7 +63,6 @@ export async function GET({ request, url }) {
 			.sort((a, b) => a.distance - b.distance);
 	}
 
-	// Applica limit se presente
 	if (limit > 0) {
 		data = data.slice(0, limit);
 	}
