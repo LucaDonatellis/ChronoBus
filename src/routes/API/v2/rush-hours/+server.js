@@ -6,33 +6,12 @@ export async function GET({ request, url }) {
     const dayParam = url.searchParams.get('date');
     if (!dayParam) {
         return json({ error: 'Date parameter is required' }, { status: 400 });
-    }
-
-    let query = {};
-    try {
-        const date = new Date(dayParam);
-        if (isNaN(date.getTime())) {
-            return json({ error: 'Invalid date format. Use YYYY-MM-DD' }, { status: 400 });
-        }
-
-        const start = new Date(date);
-        start.setHours(0, 0, 0, 0);
-
-        const end = new Date(date);
-        end.setHours(23, 59, 59, 999);
-
-        query = { time: { $gte: start, $lte: end } };
-
-
-    } catch {
-        return json({ error: 'Invalid date format. Use YYYY-MM-DD' }, { status: 400 });
-    }
-
+    }   
 
     try {
-        let reports = await Report.find(query).sort({ time: -1 }).lean();
+        let reports = await Report.find().lean();
         let groupedReports = {};
-        reports.forEach(report => {
+        reports.forEach(report => {            
             if (!groupedReports[report.line]) {
                 groupedReports[report.line]=[];
                 for (let hour = 0; hour < 24; hour++) {
