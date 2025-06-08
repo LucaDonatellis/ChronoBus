@@ -1,2 +1,6 @@
 @import 'tailwindcss';
 @plugin "daisyui";
+
+.leaflet-control-geocoder-form input{
+    color:black;
+}

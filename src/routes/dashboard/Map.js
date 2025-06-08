@@ -15,8 +15,9 @@ export class Map {
     }
     async init() {
         this.L = await import('leaflet');
-        this.ControlGeocoder = (await import('leaflet-control-geocoder')).default;
-        this.Routing = (await import('leaflet-routing-machine')).default;
+        await import('leaflet-routing-machine');
+        const Geocoder = (await import('leaflet-control-geocoder')).default;
+        this.ControlGeocoder = Geocoder;
 
         this.map = this.L.map(this.mapElement, {
             zoomControl: false
@@ -82,9 +83,9 @@ export class Map {
         this.L.marker(coords, { icon: icon }).addTo(this.map);
     }
 
-    addBusStop(coords, stopName, lines, iconColor) {
+    addBusStop(coords, stopName, lines, iconColor,dimension) {
         const svgIcon = `
-		<svg xmlns="http://www.w3.org/2000/svg" fill=${iconColor} viewBox="0 0 512 489.437" width="30" height="30" clip-rule="evenodd" fill-rule="evenodd" image-rendering="optimizeQuality" text-rendering="geometricPrecision" shape-rendering="geometricPrecision">
+		<svg xmlns="http://www.w3.org/2000/svg" fill=${iconColor} viewBox="0 0 512 489.437" width="${dimension}" height="${dimension}" clip-rule="evenodd" fill-rule="evenodd" image-rendering="optimizeQuality" text-rendering="geometricPrecision" shape-rendering="geometricPrecision">
 
  <g>
   <title>Layer 1</title>
@@ -100,8 +101,8 @@ export class Map {
         const customIcon = this.L.divIcon({
             html: svgIcon,
             className: '',
-            iconSize: [30, 30],
-            iconAnchor: [15, 30],
+            iconSize: [dimension, dimension],
+            iconAnchor: [dimension/2, dimension],
         });
 
         const marker = this.L.marker(coords, { icon: customIcon }).addTo(this.map);
@@ -129,26 +130,52 @@ export class Map {
             <div style="">
             <h4 style="margin:0 0 2px 0;">${stopName}</h4>
             <div style="display:flex;gap:2px;">${linesHtml}</div>
-            <button style="margin-top:8px;padding:4px 10px;background:${iconColor};color:#fff;border:none;border-radius:4px;cursor:pointer;">
+            <div style="display:flex;gap:2px;margin-top:8px;">
+            <button style="padding:4px;background:${iconColor};color:#fff;border:none;border-radius:4px;cursor:pointer;">
                 Vedi orari
             </button>
+            <button class="route-button" 
+            data-lat="${coords[0]}" 
+            data-lon="${coords[1]}" 
+            style="padding:4px;z-index:10000;background:${iconColor};color:#fff;border:none;border-radius:4px;cursor:pointer;">
+                Percorso
+            </button>
             </div>
-        `, { maxWidth: 300,offset: L.point(0, -20) });
+            </div>
+        `, { maxWidth: 300, offset: L.point(0, -dimension) });
 
         marker.on('click', () => marker.openPopup());
+
+        marker.on('popupopen', (e) => {
+            document.body.addEventListener('click', (e) => {
+                if (e.target.classList.contains('route-button')) {
+                    const lat = parseFloat(e.target.dataset.lat);
+                    const lon = parseFloat(e.target.dataset.lon);
+
+                    this.searchLatLng = [lat, lon];
+                    this.drawRoute(false);
+                }
+            });
+
+        });
+
     }
 
 
-    drawRoute() {
-        this.L.Routing.control({
+    drawRoute(endingMarker = true) {
+        if (this.routingControl) {
+            this.map.removeControl(this.routingControl);
+        }
+        this.routingControl=this.L.Routing.control({
             waypoints: [
                 this.userLatLon,
                 this.searchLatLng
             ],
             routeWhileDragging: true,
-            geocoder: this.L.Control.Geocoder.nominatim(), // opzionale
+            show: false,
+            geocoder: this.L.Control.Geocoder.nominatim(),
             createMarker: (i, wp, nWps) => {
-                if (i === 1) {
+                if (i === 1 && endingMarker) {
                     return this.L.marker(wp.latLng);
                 }
             }

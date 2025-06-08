@@ -31,5 +31,18 @@ export async function GET({ request, url }) {
 
     let data = await res.json();
 
+    data.sort((a, b) => {
+        const aNum = parseInt(a.routeShortName);
+        const bNum = parseInt(b.routeShortName);
+        
+        if (!isNaN(aNum) && !isNaN(bNum)) {
+            return aNum - bNum;
+        }
+        return a.routeShortName.localeCompare(b.routeShortName);
+    });
+    data.find((l)=>l.routeShortName=="5/").routeColor="F5C500"
+    data.find((l)=>l.routeShortName=="CM").routeColor="000000"
+    //data=data.filter(l=>l.color)
+
     return json(data);
 }

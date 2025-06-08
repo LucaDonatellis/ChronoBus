@@ -33,26 +33,38 @@
 				errorAlert(err || 'Errore nel caricamento delle linee');
 			});
 	});
-	let selectElement = $state();
-	$effect(() => {
-		selectElement.style.borderColor = "#"+lines.find((l) => l.routeShortName === line)?.routeColor;
-	});
 </script>
 
 <div class="flex flex-col items-center gap-4 pt-10">
-	<div class="w-80 gap-2 flex flex-col">
+	<div class="flex w-80 flex-col gap-2">
 		<h2 class=" text-2xl font-semibold">Segnalazione</h2>
 		<div>
 			<h3 class="font-medium">Linea</h3>
-			<select class="select w-full" bind:this={selectElement} bind:value={line}>
-				{#each lines as line}
-					<option value={line.routeShortName}> {line.routeShortName}</option>
+			<div class="flex flex-wrap gap-2">
+				{#each lines as l}
+					<label class="flex cursor-pointer items-center">
+						<input
+							type="radio"
+							name="line"
+							class="hidden"
+							bind:group={line}
+							value={l.routeShortName}
+						/>
+						<span
+							class="rounded size-7 text-center font-semibold text-white"
+							style="border: 2px solid #{l.routeColor};background:{line === l.routeShortName
+								? '#' + l.routeColor
+								: ''}; opacity: {line === l.routeShortName ? 1 : 0.6};"
+						>
+							{l.routeShortName}
+						</span>
+					</label>
 				{/each}
-			</select>
+			</div>
 		</div>
 		<div>
 			<h3 class="font-medium">Orario</h3>
-			<input type="datetime-local" class="w-full input" bind:value={time} />
+			<input type="datetime-local" class="input w-full" bind:value={time} />
 		</div>
 		<h3 class="font-medium">Affollamento</h3>
 		<div class="flex flex-col items-center gap-1">

@@ -31,7 +31,7 @@ export async function GET({ request, url }) {
 
     try {
         let reports = await Report.find(query).sort({ time: -1 }).lean();
-        const groupedReports = {};
+        let groupedReports = {};
         reports.forEach(report => {
             if (!groupedReports[report.line]) {
                 groupedReports[report.line]=[];
@@ -47,7 +47,7 @@ export async function GET({ request, url }) {
             return {
                 line, crowdedness: data.map((h)=> ['almost_empty', 'empty_seats', 'seats_full', 'crowded', 'overcrowded']
                 [Math.round(
-                    (h.empty_seats + h.almost_empty * 2 + h.seats_full * 3 + h.crowded * 4 + h.overcrowded * 5) /
+                    (h.almost_empty + h.empty_seats * 2 + h.seats_full * 3 + h.crowded * 4 + h.overcrowded * 5) /
                     (h.empty_seats + h.almost_empty + h.seats_full + h.crowded + h.overcrowded))
                     - 1])
             }
