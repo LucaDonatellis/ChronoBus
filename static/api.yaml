@@ -1,29 +1,278 @@
 openapi: 3.0.3
 info:
   title: ChronoBus API
-  version: 1.0.0
+  version: 2.0.0
   description: API per il sito ChronoBus
 
 paths:
-  /API/v1/reports:
+  /API/v2/official_report:
     get:
-      summary: Recupera tutti i report
+      summary: Recupera tutti i report ufficiali
       tags:
-        - Reports
-      security:
-        - BearerAuth: []
+        - Official Reports
       responses:
         '200':
-          description: Lista di tutti i report
+          description: Lista di tutti i report ufficiali
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Report'
+                  $ref: '#/components/schemas/OfficialReport'
+        '500':
+          description: Errore del server
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Server error
 
     post:
-      summary: Crea un nuovo report
+      summary: Crea un nuovo report ufficiale (solo admin)
+      tags:
+        - Official Reports
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - text
+                - expireAt
+              properties:
+                text:
+                  type: string
+                  example: Questo è un report ufficiale.
+                expireAt:
+                  type: string
+                  format: date-time
+                  description: Data di scadenza in formato ISO 8601
+                  example: '2025-12-31T23:59:59Z'
+      responses:
+        '201':
+          description: Report salvato con successo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Report saved successfully
+        '400':
+          description: Data di scadenza non valida o campi mancanti
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid ending time
+        '401':
+          description: Token mancante o non valido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Token non valido o mancante
+        '403':
+          description: Non autorizzato (non admin)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Unauthorized
+        '500':
+          description: Errore del server
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Server error
+  /API/v2/official_report/{id}:
+    get:
+      summary: Recupera un report ufficiale per ID
+      tags:
+        - Official Reports
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Report ufficiale trovato
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OfficialReport'
+        '401':
+          description: Non autorizzato, token mancante o non valido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Token non valido o mancante
+        '404':
+          description: Report non trovato
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Report not found
+        '500':
+          description: Errore interno del server o ID non valido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid ID or server error
+
+    delete:
+      summary: Elimina un report ufficiale per ID
+      tags:
+        - Official Reports
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Report eliminato con successo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Report deleted successfully
+        '401':
+          description: Non autorizzato, token mancante o non valido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Token non valido o mancante
+        '404':
+          description: Report non trovato
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Report not found
+        '500':
+          description: Errore interno del server o ID non valido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid ID or server error
+  /API/v2/reports:
+    get:
+      summary: Recupera tutti i report, con filtro per data e raggruppamento opzionale per linea
+      tags:
+        - Reports
+      parameters:
+        - name: date
+          in: query
+          description: Data per filtrare i report nel formato YYYY-MM-DD
+          required: false
+          schema:
+            type: string
+            pattern: '^\d{4}-\d{2}-\d{2}$'
+            example: '2025-06-08'
+        - name: groupBy
+          in: query
+          description: Raggruppa i report per linea (usa "line")
+          required: false
+          schema:
+            type: string
+            enum: ['line']
+      responses:
+        '200':
+          description: Lista di report o lista di report raggruppati per linea
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: array
+                    items:
+                      $ref: '#/components/schemas/Report'
+                  - type: array
+                    items:
+                      type: object
+                      properties:
+                        line:
+                          type: string
+                        reports:
+                          type: array
+                          items:
+                            $ref: '#/components/schemas/Report'
+        '400':
+          description: Parametro data o gruppo non valido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid day format. Use YYYY-MM-DD
+        '500':
+          description: Errore interno del server
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Server error
+
+    post:
+      summary: Crea un nuovo report (autenticazione richiesta)
       tags:
         - Reports
       security:
@@ -33,7 +282,24 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/NewReport'
+              type: object
+              required:
+                - line
+                - time
+                - crowdedness
+              properties:
+                line:
+                  type: string
+                  example: "Line1"
+                time:
+                  type: string
+                  format: date-time
+                  description: Data e ora del report in formato ISO 8601
+                  example: '2025-06-08T12:00:00Z'
+                crowdedness:
+                  type: string
+                  enum: ['almost_empty', 'empty_seats', 'seats_full', 'crowded', 'overcrowded']
+                  example: 'crowded'
       responses:
         '201':
           description: Report creato con successo
@@ -44,12 +310,38 @@ paths:
                 properties:
                   message:
                     type: string
+                    example: Report saved successfully
         '400':
           description: Dati non validi
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid data
+        '401':
+          description: Token mancante o non valido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Token non valido o mancante
         '500':
-          description: Errore del server
-
-  /API/v1/reports/{id}:
+          description: Errore interno del server
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Server error
+  /API/v2/reports/{id}:
     get:
       summary: Recupera un report per ID
       tags:
@@ -69,10 +361,36 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Report'
+        '401':
+          description: Token mancante o non valido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Token non valido o mancante
         '404':
           description: Report non trovato
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Report not found
         '500':
-          description: Errore del server
+          description: ID non valido o errore del server
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid ID or server error
 
     delete:
       summary: Elimina un report per ID
@@ -89,53 +407,16 @@ paths:
       responses:
         '200':
           description: Report eliminato con successo
-        '404':
-          description: Report non trovato
-        '500':
-          description: Errore del server
-  /API/v1/users:
-    post:
-      summary: Registra un nuovo utente
-      tags:
-        - Authentication
-      description: Registra un nuovo utente nel database MongoDB. Restituisce un token JWT se la registrazione va a buon fine.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - email
-                - password
-              properties:
-                email:
-                  type: string
-                  format: email
-                  example: user@example.com
-                password:
-                  type: string
-                  example: yourPassword123
-      responses:
-        "201":
-          description: Registrazione avvenuta con successo
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  success:
-                    type: boolean
-                    example: true
-                  token:
-                    type: string
-                    description: JWT generato all’atto della registrazione
-                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
                   message:
                     type: string
-                    example: Registrazione avvenuta con successo.
-        "400":
-          description: Parametri mancanti
+                    example: Report deleted successfully
+        '401':
+          description: Token mancante o non valido
           content:
             application/json:
               schema:
@@ -143,9 +424,9 @@ paths:
                 properties:
                   error:
                     type: string
-                    example: Email e password sono obbligatorie.
-        "409":
-          description: Email già registrata
+                    example: Token non valido o mancante
+        '404':
+          description: Report non trovato
           content:
             application/json:
               schema:
@@ -153,8 +434,60 @@ paths:
                 properties:
                   error:
                     type: string
-                    example: Email già registrata.
-        "500":
+                    example: Report not found
+        '500':
+          description: ID non valido o errore del server
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid ID or server error
+  /API/v2/rush-hours:
+    get:
+      summary: Ottieni la previsione delle ore di punta per linea in base ai report di un giorno specifico
+      parameters:
+        - name: date
+          in: query
+          required: true
+          description: Data per la quale ottenere le ore di punta, formato YYYY-MM-DD
+          schema:
+            type: string
+            pattern: '^\d{4}-\d{2}-\d{2}$'
+            example: '2025-06-08'
+      responses:
+        '200':
+          description: Previsioni delle ore di punta raggruppate per linea
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    line:
+                      type: string
+                      description: Linea del bus/tram
+                      example: "Line1"
+                    crowdedness:
+                      type: array
+                      description: Array di 24 elementi, uno per ogni ora del giorno, con il livello di affollamento previsto
+                      items:
+                        type: string
+                        enum: ['almost_empty', 'empty_seats', 'seats_full', 'crowded', 'overcrowded']
+        '400':
+          description: Parametro data mancante o non valido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Date parameter is required
+        '500':
           description: Errore interno del server
           content:
             application/json:
@@ -163,13 +496,15 @@ paths:
                 properties:
                   error:
                     type: string
-                    example: Errore interno del server.
-  /API/v1/session/login:
+                    example: Server error
+  /API/v2/session/login:
     post:
       summary: Login utente
       tags:
         - Authentication
-      description: Autentica un utente con email e password. Restituisce il token JWT se il login va a buon fine.
+      description: >
+        Autentica un utente con email e password. Se il login ha successo,
+        restituisce un token JWT con durata di 30 giorni e informazioni sull'utente.
       requestBody:
         required: true
         content:
@@ -188,25 +523,25 @@ paths:
                   type: string
                   example: yourPassword123
       responses:
-        "201":
+        '201':
           description: Login avvenuto con successo
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  success:
-                    type: boolean
-                    example: true
+                  message:
+                    type: string
+                    example: Login successful
                   token:
                     type: string
                     description: JWT generato all’atto del login
                     example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-                  message:
-                    type: string
-                    example: Login avvenuto con successo.
-        "400":
-          description: Parametri mancanti
+                  isAdmin:
+                    type: boolean
+                    example: false
+        '400':
+          description: Email o password mancanti
           content:
             application/json:
               schema:
@@ -214,9 +549,9 @@ paths:
                 properties:
                   error:
                     type: string
-                    example: Email e password sono obbligatorie.
-        "409":
-          description: Email non trovata
+                    example: Email and password required.
+        '401':
+          description: Password non valida
           content:
             application/json:
               schema:
@@ -224,8 +559,18 @@ paths:
                 properties:
                   error:
                     type: string
-                    example: Email non trovata
-        "500":
+                    example: Invalid password.
+        '409':
+          description: Email non trovata nel database
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Email not found.
+        '500':
           description: Errore interno del server
           content:
             application/json:
@@ -234,7 +579,743 @@ paths:
                 properties:
                   error:
                     type: string
-                    example: Errore interno del server.
+                    example: Server error.
+  /API/v2/students-hours:
+    get:
+      summary: Ottenere informazioni sugli orari delle lezioni e presenze studenti
+      description: >
+        Restituisce le classi che hanno lezioni nel giorno specificato,
+        con dettagli su orari, numero di studenti e tasso di frequenza.
+      parameters:
+        - name: date
+          in: query
+          description: Data per filtrare le lezioni (formato YYYY-MM-DD)
+          required: true
+          schema:
+            type: string
+            format: date
+            example: 2025-06-08
+      responses:
+        '200':
+          description: Lista delle classi con lezioni nel giorno richiesto
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    className:
+                      type: string
+                      example: Ingegneria del software
+                    department:
+                      type: string
+                      example: Povo 1
+                    lines:
+                      type: array
+                      items:
+                        type: string
+                      example: ["5", "5/"]
+                    lessons:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          day:
+                            type: integer
+                            description: Giorno della settimana (0=domenica, 6=sabato)
+                            example: 1
+                          start:
+                            type: string
+                            example: "10:30"
+                          end:
+                            type: string
+                            example: "13:30"
+                    students:
+                      type: integer
+                      example: 100
+                    attendenceRate:
+                      type: number
+                      format: float
+                      example: 0.8
+        '400':
+          description: Parametro data mancante o non valido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Date parameter is required
+        '500':
+          description: Errore interno del server
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Server error
+  /API/v2/trentino-trasporti/lines:
+    get:
+      tags:
+          - Trentino Trasporti
+      summary: Recupera le linee di trasporto da Trentino Trasporti
+      description: >
+        Restituisce la lista delle linee di trasporto per l'area 23,
+        ordinate per numero o nome della linea. Vengono applicati colori
+        personalizzati per alcune linee specifiche.
+      responses:
+        '200':
+          description: Lista delle linee di trasporto
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    routeShortName:
+                      type: string
+                      example: "5/"
+                    routeLongName:
+                      type: string
+                      example: "Linea 5"
+                    routeColor:
+                      type: string
+                      example: "F5C500"
+                    # Aggiungi altre proprietà che esistono nell'oggetto linea qui
+        '403':
+          description: Richiesta da origine non consentita
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Forbidden
+        default:
+          description: Errore generico
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Errore nel recupero delle linee
+  /API/v2/trentino-trasporti/stops:
+    get:
+      tags:
+          - Trentino Trasporti
+      summary: Recupera le fermate del trasporto pubblico a Trento
+      description: >
+        Restituisce la lista delle fermate di tipo "U" filtrate per la città di Trento.
+        Se vengono forniti parametri di latitudine e longitudine, calcola la distanza
+        di ogni fermata rispetto alla posizione fornita e ordina i risultati in base alla distanza.
+        È possibile limitare il numero di fermate restituite tramite il parametro `limit`.
+      parameters:
+        - name: lat
+          in: query
+          description: Latitudine per calcolare la distanza dalle fermate (opzionale)
+          required: false
+          schema:
+            type: number
+            format: float
+        - name: lon
+          in: query
+          description: Longitudine per calcolare la distanza dalle fermate (opzionale)
+          required: false
+          schema:
+            type: number
+            format: float
+        - name: limit
+          in: query
+          description: Numero massimo di fermate da restituire (opzionale)
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Lista delle fermate filtrate e ordinate
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    stopId:
+                      type: string
+                      example: "1234"
+                    stopName:
+                      type: string
+                      example: "Fermata Piazza Dante"
+                    town:
+                      type: string
+                      example: "Trento"
+                    stopLat:
+                      type: number
+                      format: float
+                      example: 46.0667
+                    stopLon:
+                      type: number
+                      format: float
+                      example: 11.1214
+                    distance:
+                      type: number
+                      format: float
+                      description: Distanza dalla posizione richiesta in metri (presente solo se lat e lon sono forniti)
+                      example: 230.5
+        '403':
+          description: Richiesta da origine non consentita
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Forbidden
+        default:
+          description: Errore generico
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Errore nel recupero delle fermate
+  /API/v2/trentino-trasporti/stops/with_arrivals:
+    get:
+      tags:
+          - Trentino Trasporti
+      summary: Recupera le fermate di Trento con le prossime corse in arrivo
+      description: >
+        Restituisce le fermate di tipo "U" filtrate per la città di Trento.
+        Se latitudine e longitudine sono forniti, calcola la distanza dalla posizione e ordina i risultati.
+        Per ogni fermata vengono inoltre recuperate fino a 4 corse in arrivo, con ritardo e colore della linea.
+      parameters:
+        - name: lat
+          in: query
+          description: Latitudine per calcolare la distanza dalle fermate (opzionale)
+          required: false
+          schema:
+            type: number
+            format: float
+        - name: lon
+          in: query
+          description: Longitudine per calcolare la distanza dalle fermate (opzionale)
+          required: false
+          schema:
+            type: number
+            format: float
+        - name: limit
+          in: query
+          description: Numero massimo di fermate da restituire (opzionale)
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Lista delle fermate con dati di arrivo delle corse
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    stopId:
+                      type: string
+                      example: "1234"
+                    stopName:
+                      type: string
+                      example: "Fermata Piazza Dante"
+                    town:
+                      type: string
+                      example: "Trento"
+                    stopLat:
+                      type: number
+                      format: float
+                      example: 46.0667
+                    stopLon:
+                      type: number
+                      format: float
+                      example: 11.1214
+                    distance:
+                      type: number
+                      format: float
+                      description: Distanza dalla posizione richiesta in metri (se lat e lon forniti)
+                      example: 230.5
+                    arrivals:
+                      type: array
+                      description: Prossime corse in arrivo alla fermata
+                      items:
+                        type: object
+                        properties:
+                          ritardo:
+                            type: integer
+                            description: Ritardo in minuti rispetto all'orario previsto
+                            example: 2
+                          routeColor:
+                            type: string
+                            description: Codice colore esadecimale della linea
+                            example: "F5C500"
+                          routeShortName:
+                            type: string
+                            description: Nome breve della linea
+                            example: "5/"
+        '403':
+          description: Richiesta da origine non consentita
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Forbidden
+        default:
+          description: Errore generico
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Errore nel recupero delle fermate
+  /API/v2/trentino-trasporti/trips_new:
+    get:
+      tags:
+          - Trentino Trasporti
+      summary: Recupera le corse in arrivo per una fermata specifica
+      description: >
+        Restituisce le corse in arrivo filtrate per ID fermata (stopId).
+        È possibile limitare il numero di corse restituite tramite il parametro limit.
+      parameters:
+        - name: stopId
+          in: query
+          description: ID numerico della fermata per cui si vogliono le corse
+          required: true
+          schema:
+            type: number
+            format: float
+        - name: limit
+          in: query
+          description: Numero massimo di corse da restituire (default 10)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 10
+      responses:
+        '200':
+          description: Lista delle corse in arrivo
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  # Le proprietà degli oggetti dipendono dai dati API di trentino trasporti,
+                  # qui è un esempio generico, da adattare ai dati reali
+                  properties:
+                    routeId:
+                      type: string
+                      example: "5/"
+                    oraArrivoEffettivaAFermataSelezionata:
+                      type: string
+                      format: date-time
+                      example: "2025-06-08T14:30:00Z"
+                    # aggiungi altre proprietà come da API originale
+        '400':
+          description: Parametro stopId mancante o non valido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: stopId required
+        '403':
+          description: Richiesta da origine non consentita
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Forbidden
+        default:
+          description: Errore generico
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Errore nel recupero delle fermate
+  /API/v2/users:
+    post:
+      tags:
+          - Users
+      summary: Registrazione nuovo utente
+      description: >
+        Registra un nuovo utente con email e password.
+        Restituisce un token JWT in caso di successo.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                password:
+                  type: string
+                  minLength: 6
+                  example: strongPassword123
+      responses:
+        '201':
+          description: Registrazione avvenuta con successo, token JWT restituito
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Registration successful
+                  token:
+                    type: string
+        '400':
+          description: Email o password mancanti
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Email and password required.
+        '409':
+          description: Account già esistente con la stessa email
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Account already exists with this email.
+        '500':
+          description: Errore interno del server
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Server error.
+
+    get:
+      tags:
+          - Users
+      summary: Recupera la lista degli utenti (solo admin)
+      description: >
+        Restituisce la lista completa degli utenti. Accesso consentito solo agli admin.
+        La validità del token e i permessi sono verificati tramite `validateToken`.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Lista utenti
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                      example: 60b8d295f3a5a4f99e8f1234
+                    email:
+                      type: string
+                      format: email
+                      example: user@example.com
+                    isAdmin:
+                      type: boolean
+                      example: false
+        '401':
+          description: Token non valido o assente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid token
+        '403':
+          description: Accesso negato, utente non admin
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Unauthorized
+        '500':
+          description: Errore interno del server
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Server error.
+  /API/v2/user/{id}:
+    parameters:
+      - name: id
+        in: path
+        description: ID dell'utente
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+          - Users
+      summary: Ottieni un utente per ID (solo admin)
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Dati utente trovati
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                    example: 60b8d295f3a5a4f99e8f1234
+                  email:
+                    type: string
+                    format: email
+                    example: user@example.com
+                  isAdmin:
+                    type: boolean
+                    example: false
+                  notificationsAdvance:
+                    type: integer
+                    example: 15
+        '401':
+          description: Token non valido o assente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid token
+        '403':
+          description: Accesso negato, utente non admin
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Unauthorized
+        '404':
+          description: Utente non trovato
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: User not found
+        '500':
+          description: Errore interno del server
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Server error
+
+    delete:
+      tags:
+          - Users
+      summary: Elimina un utente per ID (admin o utente stesso)
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Utente eliminato con successo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User deleted successfully
+        '401':
+          description: Token non valido o assente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid token
+        '403':
+          description: Accesso negato (non admin e non utente stesso)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Unauthorized
+        '404':
+          description: Utente non trovato
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: User not found
+        '500':
+          description: Errore interno del server
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Server error
+
+    patch:
+      tags:
+          - Users
+      summary: Aggiorna utente (admin o utente stesso)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                isAdmin:
+                  type: boolean
+                  description: "Solo admin può modificare questo campo"
+                  example: true
+                notificationsAdvance:
+                  type: integer
+                  description: Tempo di anticipo per notifiche
+                  example: 15
+      responses:
+        '200':
+          description: Utente aggiornato con successo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User updated
+                  user:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      email:
+                        type: string
+                        format: email
+                      isAdmin:
+                        type: boolean
+                      notificationsAdvance:
+                        type: integer
+        '400':
+          description: Nessun campo valido da aggiornare
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: No valid fields to update
+        '401':
+          description: Token non valido o assente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid token
+        '403':
+          description: Accesso negato (non admin e non utente stesso)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Unauthorized
+        '404':
+          description: Utente non trovato
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: User not found
+        '500':
+          description: Errore interno del server
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Server error
+
+
+
 
 components:
   securitySchemes:
@@ -266,3 +1347,20 @@ components:
             __v:
               type: integer
           required: [_id]
+    OfficialReport:
+      type: object
+      properties:
+        _id:
+          type: string
+        text:
+          type: string
+        expireAt:
+          type: string
+          format: date-time
+          description: Data di scadenza del report
+        __v:
+          type: integer
+      required:
+        - _id
+        - text
+        - expireAt

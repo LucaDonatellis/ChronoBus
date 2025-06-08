@@ -42,7 +42,6 @@ export async function GET({ request, url }) {
     });
     data.find((l)=>l.routeShortName=="5/").routeColor="F5C500"
     data.find((l)=>l.routeShortName=="CM").routeColor="000000"
-    //data=data.filter(l=>l.color)
 
     return json(data);
 }

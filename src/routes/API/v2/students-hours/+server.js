@@ -1,6 +1,6 @@
 const studentsHours = [
     {
-        classMame: "Ingegneria del software",
+        className: "Ingegneria del software",
         department: "Povo 1",
         lines: ["5","5/"],
         lessons: [
@@ -12,9 +12,9 @@ const studentsHours = [
         attendenceRate: 0.8,
     },
     {
-        classMame: "Organizzazione e gestione Aziendale",
+        className: "Organizzazione e gestione Aziendale",
         department: "Povo 2",
-        line: ["5","5/"],
+        lines: ["5","5/"],
         lessons: [
             { day: 0, start: "8:30", end: "10:30" },
             { day: 3, start: "13:30", end: "15:30" },
