@@ -66,7 +66,7 @@
 	}
 </script>
 
-<div class="p-2 flex-1 overflow-hidden flex flex-col">
+<div class="flex flex-1 flex-col overflow-hidden p-2">
 	<div class="space-y-2">
 		<h2 class="text-xl font-semibold">Nuova Segnalazione</h2>
 		<h3 class="h3 font-medium">Annuncio</h3>
@@ -78,7 +78,7 @@
 	</div>
 
 	<h2 class="mt-2 mb-2 text-xl font-semibold">Segnalazioni</h2>
-	<div class="overflow-scroll flex-1">
+	<div class="flex-1 overflow-scroll">
 		{#if officialReports.length === 0}
 			<p>Nessuna segnalazione presente.</p>
 		{/if}

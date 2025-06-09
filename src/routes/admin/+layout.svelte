@@ -3,7 +3,7 @@
 	let { children } = $props();
 </script>
 
-<div class="h-full flex flex-col">
+<div class="flex h-full flex-col">
 	<div class="p-2">
 		<h1 class="text-2xl font-semibold">Pannello Admin</h1>
 		<div role="tablist" class="tabs tabs-box">

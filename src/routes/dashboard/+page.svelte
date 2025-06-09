@@ -10,8 +10,7 @@
 	let interval = undefined;
 
 	onMount(async () => {
-		
-		if (interval ) clearInterval(interval);
+		if (interval) clearInterval(interval);
 		interval = setInterval(async () => {
 			updateNearArrivals();
 		}, 10000);
@@ -95,7 +94,7 @@
 		<div class="flex justify-between">
 			<h2 class=" text-2xl font-semibold">Fermate più vicine</h2>
 			<button
-				class="border-secondary border flex h-9 w-9 items-center justify-center rounded-full" 
+				class="border-secondary flex h-9 w-9 items-center justify-center rounded-full border"
 				class:bg-secondary={showAnnouncements}
 				onclick={() => (showAnnouncements = !showAnnouncements)}
 			>
@@ -103,7 +102,7 @@
 					<span class="indicator-item indicator-bottom badge badge-warning badge-xs m-0.5 px-1"
 						>{announcements.length}</span
 					>
-					<TriangleAlert color={showAnnouncements?"#ffffff":"var(--color-secondary"}/>
+					<TriangleAlert color={showAnnouncements ? '#ffffff' : 'var(--color-secondary'} />
 				</div>
 			</button>
 		</div>

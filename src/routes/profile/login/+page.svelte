@@ -34,7 +34,6 @@
 	}
 
 	async function login() {
-
 		try {
 			const res = await fetch('/API/v2/session/login', {
 				method: 'POST',
@@ -43,7 +42,7 @@
 				},
 				body: JSON.stringify({ email, password })
 			});
-			const data = await res.json();			
+			const data = await res.json();
 
 			if (res.ok && data.token) {
 				successAlert(data.message || 'Login eseguito!');

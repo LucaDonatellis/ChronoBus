@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import jwt from "jsonwebtoken";
+import jwt from 'jsonwebtoken';
 import { JWT_PASSWORD } from '$env/static/private';
 import { mongoose, User } from '$lib/utils/mongodb.js';
 import { json } from '@sveltejs/kit';
@@ -27,47 +27,30 @@ import { isAdmin } from '$lib/stores/admin';
  *   - 500: Errore interno del server.
  */
 export async function POST({ request }) {
-    try {
-        const { email, password } = await request.json();
+	try {
+		const { email, password } = await request.json();
 
-        if (!email || !password) {
-            return json(
-                { error: 'Email and password required.' },
-                { status: 400 }
-            );
-        }
+		if (!email || !password) {
+			return json({ error: 'Email and password required.' }, { status: 400 });
+		}
 
-        const existing = await User.findOne({ email });
-        if (!existing) {
-            return json(
-                { error: 'Email not found.' },
-                { status: 409 }
-            );
-        }
-        let user = await User.findOne({ email });
-        const valid = await bcrypt.compare(password, user.password);
+		const existing = await User.findOne({ email });
+		if (!existing) {
+			return json({ error: 'Email not found.' }, { status: 409 });
+		}
+		let user = await User.findOne({ email });
+		const valid = await bcrypt.compare(password, user.password);
 
-        if (!valid) {
-            return json(
-                { error: 'Invalid password.' },
-                { status: 401 }
-            );
-        }
-        const token = jwt.sign(
-            { userId: user._id, email: user.email, isAdmin: user.isAdmin },
-            JWT_PASSWORD,
-            { expiresIn: "30d" }
-        );
-        return json(
-            { message: 'Login successful', token, isAdmin: user.isAdmin },
-            { status: 201 }
-        );
-
-    } catch (err) {
-        return json(
-            { error: 'Server error.' },
-            { status: 500 }
-        );
-    }
+		if (!valid) {
+			return json({ error: 'Invalid password.' }, { status: 401 });
+		}
+		const token = jwt.sign(
+			{ userId: user._id, email: user.email, isAdmin: user.isAdmin },
+			JWT_PASSWORD,
+			{ expiresIn: '30d' }
+		);
+		return json({ message: 'Login successful', token, isAdmin: user.isAdmin }, { status: 201 });
+	} catch (err) {
+		return json({ error: 'Server error.' }, { status: 500 });
+	}
 }
-

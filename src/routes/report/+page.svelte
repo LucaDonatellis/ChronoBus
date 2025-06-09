@@ -51,7 +51,7 @@
 							value={l.routeShortName}
 						/>
 						<span
-							class="rounded size-7 text-center font-semibold text-white"
+							class="size-7 rounded text-center font-semibold text-white"
 							style="border: 2px solid #{l.routeColor};background:{line === l.routeShortName
 								? '#' + l.routeColor
 								: ''}; opacity: {line === l.routeShortName ? 1 : 0.6};"

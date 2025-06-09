@@ -3,88 +3,93 @@ import 'leaflet-control-geocoder/dist/Control.Geocoder.css';
 import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
 
 export class Map {
-    constructor(mapElement) {
-        this.L = undefined;
-        this.ControlGeocoder = undefined;
-        this.Routing = undefined;
-        this.userLatLon = undefined;
-        this.searchLatLng = undefined;
-        this.mapElement = mapElement;
+	constructor(mapElement) {
+		this.L = undefined;
+		this.ControlGeocoder = undefined;
+		this.Routing = undefined;
+		this.userLatLon = undefined;
+		this.searchLatLng = undefined;
+		this.mapElement = mapElement;
 
-        this.map = undefined;
-    }
-    async init() {
-        this.L = await import('leaflet');
-        await import('leaflet-routing-machine');
-        const Geocoder = (await import('leaflet-control-geocoder')).default;
-        this.ControlGeocoder = Geocoder;
+		this.map = undefined;
+	}
+	async init() {
+		this.L = await import('leaflet');
+		await import('leaflet-routing-machine');
+		const Geocoder = (await import('leaflet-control-geocoder')).default;
+		this.ControlGeocoder = Geocoder;
 
-        this.map = this.L.map(this.mapElement, {
-            zoomControl: false
-        }).setView([46.04, 11.13], 13);
+		this.map = this.L.map(this.mapElement, {
+			zoomControl: false
+		}).setView([46.04, 11.13], 13);
 
-        this.L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        }).addTo(this.map);
+		this.L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+			maxZoom: 19,
+			attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+		}).addTo(this.map);
 
-        this.map.locate({ setView: false, maxZoom: 15 });
+		this.map.locate({ setView: false, maxZoom: 15 });
 
-        this.drawUserLocation();
-        this.searchBar();
-    }
-    drawUserLocation() {
-        if (!navigator.geolocation) { alert("GPS error"); return; }
+		this.drawUserLocation();
+		this.searchBar();
+	}
+	drawUserLocation() {
+		if (!navigator.geolocation) {
+			alert('GPS error');
+			return;
+		}
 
-        let accuracyCircle = null;
-        let userCircle = null;
+		let accuracyCircle = null;
+		let userCircle = null;
 
-        navigator.geolocation.watchPosition(
-            (pos) => {
-                const accuracy = pos.coords.accuracy;
+		navigator.geolocation.watchPosition(
+			(pos) => {
+				const accuracy = pos.coords.accuracy;
 
-                this.userLatLon = [pos.coords.latitude, pos.coords.longitude];
+				this.userLatLon = [pos.coords.latitude, pos.coords.longitude];
 
-                if (!accuracyCircle) {
-                    accuracyCircle = this.L.circle(this.userLatLon, { radius: accuracy, weight: 2 }).addTo(this.map);
-                    userCircle = this.L.circleMarker(this.userLatLon, {
-                        fill: true,
-                        color: '#ffffff',
-                        fillOpacity: 1,
-                        weight: 2,
-                        fillColor: '#0045ff',
-                        radius: 8
-                    }).addTo(this.map);
-                    this.map.setView(this.userLatLon, 15);
-                } else {
-                    accuracyCircle.setLatLng(this.userLatLon);
-                    userCircle.setLatLng(this.userLatLon);
-                    accuracyCircle.setRadius(accuracy);
-                }
-            },
-            (err) => {
-                console.error('Geolocalization error:', err.message);
-            },
-            {
-                enableHighAccuracy: true,
-                maximumAge: 10000,
-                timeout: 10000
-            }
-        );
-    }
-    addMarker(coords, iconUrl) {
-        let icon = this.L.icon({
-            iconUrl: iconUrl,
-            iconSize: [25, 25],
-            iconAnchor: [12.5, 25],
-            popupAnchor: [0, -25]
-        });
+				if (!accuracyCircle) {
+					accuracyCircle = this.L.circle(this.userLatLon, { radius: accuracy, weight: 2 }).addTo(
+						this.map
+					);
+					userCircle = this.L.circleMarker(this.userLatLon, {
+						fill: true,
+						color: '#ffffff',
+						fillOpacity: 1,
+						weight: 2,
+						fillColor: '#0045ff',
+						radius: 8
+					}).addTo(this.map);
+					this.map.setView(this.userLatLon, 15);
+				} else {
+					accuracyCircle.setLatLng(this.userLatLon);
+					userCircle.setLatLng(this.userLatLon);
+					accuracyCircle.setRadius(accuracy);
+				}
+			},
+			(err) => {
+				console.error('Geolocalization error:', err.message);
+			},
+			{
+				enableHighAccuracy: true,
+				maximumAge: 10000,
+				timeout: 10000
+			}
+		);
+	}
+	addMarker(coords, iconUrl) {
+		let icon = this.L.icon({
+			iconUrl: iconUrl,
+			iconSize: [25, 25],
+			iconAnchor: [12.5, 25],
+			popupAnchor: [0, -25]
+		});
 
-        this.L.marker(coords, { icon: icon }).addTo(this.map);
-    }
+		this.L.marker(coords, { icon: icon }).addTo(this.map);
+	}
 
-    addBusStop(coords, stopName, lines, iconColor,dimension) {
-        const svgIcon = `
+	addBusStop(coords, stopName, lines, iconColor, dimension) {
+		const svgIcon = `
 		<svg xmlns="http://www.w3.org/2000/svg" fill=${iconColor} viewBox="0 0 512 489.437" width="${dimension}" height="${dimension}" clip-rule="evenodd" fill-rule="evenodd" image-rendering="optimizeQuality" text-rendering="geometricPrecision" shape-rendering="geometricPrecision">
 
  <g>
@@ -98,18 +103,20 @@ export class Map {
  </g>
 </svg>
 	`;
-        const customIcon = this.L.divIcon({
-            html: svgIcon,
-            className: '',
-            iconSize: [dimension, dimension],
-            iconAnchor: [dimension/2, dimension],
-        });
+		const customIcon = this.L.divIcon({
+			html: svgIcon,
+			className: '',
+			iconSize: [dimension, dimension],
+			iconAnchor: [dimension / 2, dimension]
+		});
 
-        const marker = this.L.marker(coords, { icon: customIcon }).addTo(this.map);
+		const marker = this.L.marker(coords, { icon: customIcon }).addTo(this.map);
 
-        const linesHtml = Array.isArray(lines)
-            ? lines.map(line =>
-                `<span style="
+		const linesHtml = Array.isArray(lines)
+			? lines
+					.map(
+						(line) =>
+							`<span style="
                 display:flex;
                 background:${line.color};
                 color:#fff;
@@ -123,10 +130,12 @@ export class Map {
                 justify-content: center;
 
             ">${line.name}</span>`
-            ).join('')
-            : '';
+					)
+					.join('')
+			: '';
 
-        marker.bindPopup(`
+		marker.bindPopup(
+			`
             <div style="">
             <h4 style="margin:0 0 2px 0;">${stopName}</h4>
             <div style="display:flex;gap:2px;">${linesHtml}</div>
@@ -142,66 +151,61 @@ export class Map {
             </button>
             </div>
             </div>
-        `, { maxWidth: 300, offset: L.point(0, -dimension) });
+        `,
+			{ maxWidth: 300, offset: L.point(0, -dimension) }
+		);
 
-        marker.on('click', () => marker.openPopup());
+		marker.on('click', () => marker.openPopup());
 
-        marker.on('popupopen', (e) => {
-            document.body.addEventListener('click', (e) => {
-                if (e.target.classList.contains('route-button')) {
-                    const lat = parseFloat(e.target.dataset.lat);
-                    const lon = parseFloat(e.target.dataset.lon);
+		marker.on('popupopen', (e) => {
+			document.body.addEventListener('click', (e) => {
+				if (e.target.classList.contains('route-button')) {
+					const lat = parseFloat(e.target.dataset.lat);
+					const lon = parseFloat(e.target.dataset.lon);
 
-                    this.searchLatLng = [lat, lon];
-                    this.drawRoute(false);
-                }
-            });
+					this.searchLatLng = [lat, lon];
+					this.drawRoute(false);
+				}
+			});
+		});
+	}
 
-        });
+	drawRoute(endingMarker = true) {
+		if (this.routingControl) {
+			this.map.removeControl(this.routingControl);
+		}
+		this.routingControl = this.L.Routing.control({
+			waypoints: [this.userLatLon, this.searchLatLng],
+			routeWhileDragging: true,
+			show: false,
+			geocoder: this.L.Control.Geocoder.nominatim(),
+			createMarker: (i, wp, nWps) => {
+				if (i === 1 && endingMarker) {
+					return this.L.marker(wp.latLng);
+				}
+			}
+		}).addTo(this.map);
+	}
 
-    }
+	searchBar() {
+		let endMarker = undefined;
+		this.L.Control.geocoder({
+			defaultMarkGeocode: false
+		})
+			.on('markgeocode', (e) => {
+				const end = e.geocode.center;
+				this.searchLatLng = [end.lat, end.lng];
 
+				if (endMarker) {
+					endMarker.setLatLng(end);
+				} else {
+					endMarker = this.L.marker(end).addTo(this.map);
+				}
 
-    drawRoute(endingMarker = true) {
-        if (this.routingControl) {
-            this.map.removeControl(this.routingControl);
-        }
-        this.routingControl=this.L.Routing.control({
-            waypoints: [
-                this.userLatLon,
-                this.searchLatLng
-            ],
-            routeWhileDragging: true,
-            show: false,
-            geocoder: this.L.Control.Geocoder.nominatim(),
-            createMarker: (i, wp, nWps) => {
-                if (i === 1 && endingMarker) {
-                    return this.L.marker(wp.latLng);
-                }
-            }
-        }).addTo(this.map);
-    }
+				this.drawRoute();
 
-    searchBar() {
-        let endMarker = undefined;
-        this.L.Control.geocoder({
-            defaultMarkGeocode: false
-        })
-            .on('markgeocode', (e) => {
-                const end = e.geocode.center;
-                this.searchLatLng = [end.lat, end.lng];
-
-                if (endMarker) {
-                    endMarker.setLatLng(end);
-                } else {
-                    endMarker = this.L.marker(end).addTo(this.map);
-                }
-
-                this.drawRoute();
-
-                this.map.fitBounds(this.L.latLngBounds(this.userLatLon, this.searchLatLng));
-            })
-            .addTo(this.map);
-    }
-
+				this.map.fitBounds(this.L.latLngBounds(this.userLatLon, this.searchLatLng));
+			})
+			.addTo(this.map);
+	}
 }

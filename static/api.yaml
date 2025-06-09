@@ -290,7 +290,7 @@ paths:
               properties:
                 line:
                   type: string
-                  example: "Line1"
+                  example: 'Line1'
                 time:
                   type: string
                   format: date-time
@@ -470,13 +470,14 @@ paths:
                     line:
                       type: string
                       description: Linea del bus/tram
-                      example: "Line1"
+                      example: 'Line1'
                     crowdedness:
                       type: array
                       description: Array di 24 elementi, uno per ogni ora del giorno, con il livello di affollamento previsto
                       items:
                         type: string
-                        enum: ['almost_empty', 'empty_seats', 'seats_full', 'crowded', 'overcrowded']
+                        enum:
+                          ['almost_empty', 'empty_seats', 'seats_full', 'crowded', 'overcrowded']
         '400':
           description: Parametro data mancante o non valido
           content:
@@ -615,7 +616,7 @@ paths:
                       type: array
                       items:
                         type: string
-                      example: ["5", "5/"]
+                      example: ['5', '5/']
                     lessons:
                       type: array
                       items:
@@ -627,10 +628,10 @@ paths:
                             example: 1
                           start:
                             type: string
-                            example: "10:30"
+                            example: '10:30'
                           end:
                             type: string
-                            example: "13:30"
+                            example: '13:30'
                     students:
                       type: integer
                       example: 100
@@ -661,7 +662,7 @@ paths:
   /API/v2/trentino-trasporti/lines:
     get:
       tags:
-          - Trentino Trasporti
+        - Trentino Trasporti
       summary: Recupera le linee di trasporto da Trentino Trasporti
       description: >
         Restituisce la lista delle linee di trasporto per l'area 23,
@@ -679,13 +680,13 @@ paths:
                   properties:
                     routeShortName:
                       type: string
-                      example: "5/"
+                      example: '5/'
                     routeLongName:
                       type: string
-                      example: "Linea 5"
+                      example: 'Linea 5'
                     routeColor:
                       type: string
-                      example: "F5C500"
+                      example: 'F5C500'
                     # Aggiungi altre proprietà che esistono nell'oggetto linea qui
         '403':
           description: Richiesta da origine non consentita
@@ -707,7 +708,7 @@ paths:
   /API/v2/trentino-trasporti/stops:
     get:
       tags:
-          - Trentino Trasporti
+        - Trentino Trasporti
       summary: Recupera le fermate del trasporto pubblico a Trento
       description: >
         Restituisce la lista delle fermate di tipo "U" filtrate per la città di Trento.
@@ -749,13 +750,13 @@ paths:
                   properties:
                     stopId:
                       type: string
-                      example: "1234"
+                      example: '1234'
                     stopName:
                       type: string
-                      example: "Fermata Piazza Dante"
+                      example: 'Fermata Piazza Dante'
                     town:
                       type: string
-                      example: "Trento"
+                      example: 'Trento'
                     stopLat:
                       type: number
                       format: float
@@ -789,7 +790,7 @@ paths:
   /API/v2/trentino-trasporti/stops/with_arrivals:
     get:
       tags:
-          - Trentino Trasporti
+        - Trentino Trasporti
       summary: Recupera le fermate di Trento con le prossime corse in arrivo
       description: >
         Restituisce le fermate di tipo "U" filtrate per la città di Trento.
@@ -830,13 +831,13 @@ paths:
                   properties:
                     stopId:
                       type: string
-                      example: "1234"
+                      example: '1234'
                     stopName:
                       type: string
-                      example: "Fermata Piazza Dante"
+                      example: 'Fermata Piazza Dante'
                     town:
                       type: string
-                      example: "Trento"
+                      example: 'Trento'
                     stopLat:
                       type: number
                       format: float
@@ -863,11 +864,11 @@ paths:
                           routeColor:
                             type: string
                             description: Codice colore esadecimale della linea
-                            example: "F5C500"
+                            example: 'F5C500'
                           routeShortName:
                             type: string
                             description: Nome breve della linea
-                            example: "5/"
+                            example: '5/'
         '403':
           description: Richiesta da origine non consentita
           content:
@@ -888,7 +889,7 @@ paths:
   /API/v2/trentino-trasporti/trips_new:
     get:
       tags:
-          - Trentino Trasporti
+        - Trentino Trasporti
       summary: Recupera le corse in arrivo per una fermata specifica
       description: >
         Restituisce le corse in arrivo filtrate per ID fermata (stopId).
@@ -923,11 +924,11 @@ paths:
                   properties:
                     routeId:
                       type: string
-                      example: "5/"
+                      example: '5/'
                     oraArrivoEffettivaAFermataSelezionata:
                       type: string
                       format: date-time
-                      example: "2025-06-08T14:30:00Z"
+                      example: '2025-06-08T14:30:00Z'
                     # aggiungi altre proprietà come da API originale
         '400':
           description: Parametro stopId mancante o non valido
@@ -959,7 +960,7 @@ paths:
   /API/v2/users:
     post:
       tags:
-          - Users
+        - Users
       summary: Registrazione nuovo utente
       description: >
         Registra un nuovo utente con email e password.
@@ -1028,7 +1029,7 @@ paths:
 
     get:
       tags:
-          - Users
+        - Users
       summary: Recupera la lista degli utenti (solo admin)
       description: >
         Restituisce la lista completa degli utenti. Accesso consentito solo agli admin.
@@ -1095,7 +1096,7 @@ paths:
           type: string
     get:
       tags:
-          - Users
+        - Users
       summary: Ottieni un utente per ID (solo admin)
       security:
         - BearerAuth: []
@@ -1163,7 +1164,7 @@ paths:
 
     delete:
       tags:
-          - Users
+        - Users
       summary: Elimina un utente per ID (admin o utente stesso)
       security:
         - BearerAuth: []
@@ -1221,7 +1222,7 @@ paths:
 
     patch:
       tags:
-          - Users
+        - Users
       summary: Aggiorna utente (admin o utente stesso)
       security:
         - BearerAuth: []
@@ -1234,7 +1235,7 @@ paths:
               properties:
                 isAdmin:
                   type: boolean
-                  description: "Solo admin può modificare questo campo"
+                  description: 'Solo admin può modificare questo campo'
                   example: true
                 notificationsAdvance:
                   type: integer
@@ -1314,15 +1315,12 @@ paths:
                     type: string
                     example: Server error
 
-
-
-
 components:
   securitySchemes:
-      BearerAuth:
-        type: http
-        scheme: bearer
-        bearerFormat: JWT
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     NewReport:
       type: object

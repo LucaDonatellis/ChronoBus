@@ -1,11 +1,11 @@
 <script>
 	import { onMount } from 'svelte';
-	import { Chart } from 'chart.js/auto'; 
+	import { Chart } from 'chart.js/auto';
 	import { error } from '@sveltejs/kit';
 	import { errorAlert } from '$lib/stores/alert';
 
-	let canvas = $state(); 
-	let chart; 
+	let canvas = $state();
+	let chart;
 	let date = $state(new Date().toISOString().split('T')[0]);
 
 	const labelMap = {
@@ -20,12 +20,12 @@
 		updateChart();
 	});
 	async function updateChart() {
-		if( !date || !canvas) return;
+		if (!date || !canvas) return;
 		try {
 			const resp = await fetch(`/API/v2/rush-hours?date=${date}`);
 			const linesArr = await (await fetch('/API/v2/trentino-trasporti/lines')).json();
-			const lines = Object.fromEntries(linesArr.map(l => [l.routeShortName, "#"+l.routeColor]));
-			
+			const lines = Object.fromEntries(linesArr.map((l) => [l.routeShortName, '#' + l.routeColor]));
+
 			const rh = await resp.json();
 			if (rh.error) throw new Error(rh.error);
 

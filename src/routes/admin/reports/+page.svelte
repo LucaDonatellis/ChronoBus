@@ -64,7 +64,7 @@
 		<calendar-month></calendar-month>
 	</calendar-date>
 	<div class="mb-16 overflow-scroll">
-		<table class="table-zebra table w-full table-xs">
+		<table class="table-zebra table-xs table w-full">
 			<thead>
 				<tr>
 					<th>Linea</th>
