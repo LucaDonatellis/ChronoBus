@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt from "jsonwebtoken";
-import { JWT_SECRET } from '$env/static/private';
+import { JWT_PASSWORD } from '$env/static/private';
 import { User } from '$lib/utils/mongodb.js';
 
 /**

@@ -5,7 +5,7 @@ import { validateToken } from '$lib/utils/auth';
 
 import {
     JWT_PASSWORD
-} from '$env/static/private';}
+} from '$env/static/private';
 
 
 mongoose.connect('mongodb+srv://lorenzociroluongo:QvmW8bxBiyZIpDRo@cluster0.dthxrpi.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0');

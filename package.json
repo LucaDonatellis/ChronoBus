@@ -14,7 +14,8 @@
 		"lint": "prettier --check . && eslint .",
 		"test:unit": "vitest",
 		"test": "npm run test:unit -- --run && npm run test:e2e",
-		"test:e2e": "playwright test"
+		"test:e2e": "playwright test",
+		"start": "node build"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.2.5",
@@ -43,6 +44,7 @@
 	},
 	"dependencies": {
 		"@lucide/svelte": "^0.510.0",
+		"@sveltejs/adapter-node": "^5.2.12",
 		"bcryptjs": "^3.0.2",
 		"cally": "^0.8.0",
 		"chart.js": "^4.4.9",
