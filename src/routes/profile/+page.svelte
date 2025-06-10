@@ -39,14 +39,36 @@
 		}
 	}
 </script>
-<h2 class=" p-2 text-2xl font-semibold">Profilo</h2>
-<div class="flex gap-2 p-2">
-	<button onclick={gotologin} class="btn btn-primary flex-1"> Login </button>
-	{#if token}
-		<button onclick={logout} class="btn btn-secondary flex-1"> Logout </button>
-		<button onclick={gotochangePsw} class="btn btn-secondary flex-1"> Cambio password </button>
-	{/if}
-	{#if !token}
-		<button onclick={gotopswrec} class="btn btn-secondary flex-1"> Password dimenticata </button>
-	{/if}
+
+<h2 class="p-2 text-2xl font-semibold text-white ">Profilo</h2>
+
+<div class="flex flex-col gap-2 p-2">
+  <div class="flex gap-2">
+    <button 
+      onclick={gotologin}
+      class="flex-1 bg-gray-200 text-[#1a274d] font-semibold py-2 rounded-lg border border-[#1a274d] transition-colors hover:bg-gray-300">
+      Login
+    </button>
+    {#if token}
+      <button
+        onclick={logout}
+        class="flex-1 bg-gray-200 text-[#1a274d] font-semibold py-2 rounded-lg border border-[#1a274d] transition-colors hover:bg-gray-300">
+        Logout
+      </button>
+    {/if}
+    {#if !token}
+      <button
+        onclick={gotopswrec}
+        class="flex-1 bg-gray-200 text-[#1a274d] font-semibold py-2 rounded-lg border border-[#1a274d] transition-colors hover:bg-gray-300">
+        Password dimenticata
+      </button>
+    {/if}
+  </div>
+  {#if token}
+    <button
+      onclick={gotochangePsw}
+      class="w-full bg-gray-200 text-[#1a274d] font-semibold py-2 rounded-lg border border-[#1a274d] transition-colors hover:bg-gray-300">
+      Cambio password
+    </button>
+  {/if}
 </div>
