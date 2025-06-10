@@ -1,20 +1,19 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { JWT_PASSWORD } from '$env/static/private';
+import { EMAIL_PASSWORD } from '$env/static/private';
+import { EMAIL } from '$env/static/private';
 import { mongoose, User } from '$lib/utils/mongodb.js';
 import { json } from '@sveltejs/kit';
 import { isAdmin } from '$lib/stores/admin';
 import nodemailer from 'nodemailer';
 
 /**
- * Gestisce il cambio password di un utente tramite richiesta POST.
+ * Gestisce l'invio del codice per il cambio password via email tramite richiesta POST.
  *
  * Endpoint per il cambio password che:
- * - accetta un oggetto JSON con email, vecchia password e nuova password,
+ * - accetta un oggetto JSON con email,
  * - verifica la presenza dei dati obbligatori,
  * - controlla se l'email corrisponde a un utente esistente,
- * - confronta la vecchia password fornita con quella salvata (hash),
- * - se la combinazione è valida, cambia la password con quella nuova,
  * - in caso di dati non validi, restituisce un messaggio di errore.
  *
  * @async
@@ -22,10 +21,8 @@ import nodemailer from 'nodemailer';
  * @param {Object} context - Oggetto contenente i dati della richiesta.
  * @param {Request} context.request - Oggetto Request con il body JSON { email, password }.
  * @returns {Promise<Response>} Response HTTP che può essere:
- *   - 201: Password cambiata con successo.
- *   - 400: Email o password mancanti.
- * 	 - 401: La vecchia password non è valida.
- * 	 - 402: Le password sono uguali.
+ *   - 201: Email inviata con successo.
+ *   - 400: Email mancante.
  *   - 409: Email non trovata nel database.
  *   - 500: Errore interno del server.
  */
@@ -45,22 +42,22 @@ export async function POST({ request }) {
 
 		const code = Math.floor(100000 + Math.random() * 900000).toString();
 
-		user.rec_code = code;
-		await user.save();
-
 		const transporter = nodemailer.createTransport({
 			service: 'gmail',
 			auth: {
-			  user: 'chronobus27@gmail.com',
-			  pass: 'jejo pvfc pykz vjxg',
+			  user:  EMAIL,
+			  pass:  EMAIL_PASSWORD,
 			},
 		  });
 		  const mailOptions = {
-			from: 'chronobus27@gmail.com',
+			from: EMAIL,
 			to: email,
 			subject: 'Codice cambio password - ChronoBus',
 			text: 'Ecco il tuo codice ' + code,
 		  };
+
+			user.rec_code = await bcrypt.hash(code, 10);;
+			await user.save();
 
 
 		  transporter.sendMail(mailOptions, (error, info) => {
@@ -70,7 +67,7 @@ export async function POST({ request }) {
 			console.log('Email inviata:', info.response);
 		  });
 
-		  return json({ message: 'Codice inviato via mail.' });
+		  return json({ message: 'Codice inviato via mail.' }, {status:201});
 	} catch (err) {
 		return json({ error: 'Server error. '+ err }, { status: 500 });
 	}
