@@ -78,12 +78,16 @@ export async function GET({ request, url }) {
                 }
             })
         ).json()
+
         stop.arrivals = arrivals.map(arr => ({
             ritardo: Math.round((new Date(arr.oraArrivoEffettivaAFermataSelezionata) - new Date()) / 60000),
             routeColor: (stop.routes.find(route => route.routeId === arr.routeId) || { routeColor: "000000" }).routeColor,
             routeShortName: (stop.routes.find(route => route.routeId === arr.routeId) || { routeShortName: "?" }).routeShortName,
+            
         }))
             .filter(arr => arr.ritardo < 100);
+        stop.direction = arrivals[0].directionId;  
     }
+    
     return json(data);
 }

@@ -55,6 +55,7 @@
 		"leaflet-control-geocoder": "^3.2.0",
 		"leaflet-routing-machine": "^3.2.12",
 		"mongodb": "^6.16.0",
-		"mongoose": "^8.15.0"
+		"mongoose": "^8.15.0",
+		"nodemailer": "^7.0.3"
 	}
 }
