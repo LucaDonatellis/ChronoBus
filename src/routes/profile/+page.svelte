@@ -16,6 +16,18 @@
 		goto('/profile/login');
 	}
 
+	function gotochangePsw() {
+		if (token) {
+			goto('/profile/changePsw');
+		} 
+	}
+
+	function gotopswrec() {
+		if (!token) {
+			goto('/profile/pswrec');
+		} 
+	}
+
 	function logout() {
 		if (token) {
 			successAlert('Logout effettuato con successo');
@@ -32,5 +44,9 @@
 	<button onclick={gotologin} class="btn btn-primary flex-1"> Login </button>
 	{#if token}
 		<button onclick={logout} class="btn btn-secondary flex-1"> Logout </button>
+		<button onclick={gotochangePsw} class="btn btn-secondary flex-1"> Cambio password </button>
+	{/if}
+	{#if !token}
+		<button onclick={gotopswrec} class="btn btn-secondary flex-1"> Password dimenticata </button>
 	{/if}
 </div>

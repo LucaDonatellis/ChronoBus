@@ -15,7 +15,7 @@
 		"test:unit": "vitest",
 		"test": "npm run test:unit -- --run && npm run test:e2e",
 		"test:e2e": "playwright test",
-  		"start": "node build"
+		"start": "node build"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.2.5",
@@ -54,6 +54,7 @@
 		"leaflet-control-geocoder": "^3.2.0",
 		"leaflet-routing-machine": "^3.2.12",
 		"mongodb": "^6.16.0",
-		"mongoose": "^8.15.0"
+		"mongoose": "^8.15.0",
+		"nodemailer": "^7.0.3"
 	}
 }

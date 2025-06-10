@@ -36,6 +36,7 @@ const CourseSchema = new mongoose.Schema({
 const UserSchema = new mongoose.Schema({
     email: { type: String, unique: true, required: true },
     password: { type: String, required: true },
+    rec_code: {type: String, default:  "NULL"},
     isAdmin: { type: Boolean, default: false },
     courses: [CourseSchema],
     notificationsAdvance: {type: Number, default: 0},
