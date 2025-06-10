@@ -1023,6 +1023,156 @@ paths:
                   error:
                     type: string
                     example: Errore nel recupero delle fermate
+  /API/v2/trentino-trasporti/stops/{id}:
+    get:
+      tags:
+        - Trentino Trasporti
+      summary: Get stop details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the bus stop
+      responses:
+        '200':
+          description: Stop details retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stopId:
+                    type: string
+                  name:
+                    type: string
+                  latitude:
+                    type: number
+                  longitude:
+                    type: number
+                  town:
+                    type: string
+        '403':
+          description: Forbidden - Invalid origin
+        '404':
+          description: Stop not found
+        '500':
+          description: Server error
+      security:
+        - BearerAuth: []
+  /API/v2/trentino-trasporti/stops/{id}/timetable:
+    get:
+      tags:
+        - Trentino Trasporti
+      summary: Get stop timetable
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the bus stop
+        - name: groupByRoute
+          in: query
+          required: false
+          schema:
+            type: boolean
+          description: If true, groups timetables by route ID
+      responses:
+        '200':
+          description: Timetable retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stop:
+                    type: object
+                    properties:
+                      stopId:
+                        type: string
+                      name:
+                        type: string
+                  timetables:
+                    oneOf:
+                      - type: array
+                        items:
+                          type: object
+                          properties:
+                            route_id:
+                              type: string
+                            departure_time:
+                              type: string
+                            trip_id:
+                              type: string
+                      - type: object
+                        additionalProperties:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              departure_time:
+                                type: string
+                              trip_id:
+                                type: string
+        '403':
+          description: Forbidden - Invalid origin
+        '404':
+          description: Stop not found
+        '500':
+          description: Server error
+      security:
+        - BearerAuth: []
+  /API/v2/trentino-trasporti/timetable:
+    get:
+      tags:
+        - Trentino Trasporti
+      summary: Get all timetables
+      parameters:
+        - name: trip_id
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter by trip ID
+        - name: stop_id
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter by stop ID
+      responses:
+        '200':
+          description: Timetables retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    stop_id:
+                      type: string
+                    trip_id:
+                      type: string
+                    route_id:
+                      type: string
+                    departure_time:
+                      type: string
+                      format: HH:mm:ss
+                    stop_sequence:
+                      type: integer
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Server error
   /API/v2/trentino-trasporti/stops/with_arrivals:
     get:
       tags:

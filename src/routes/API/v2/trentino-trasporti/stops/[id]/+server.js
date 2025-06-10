@@ -8,7 +8,8 @@ import {
     ALLOWED_ORIGIN
 } from '$env/static/private';
 
-export async function GET({ request, url }) {
+export async function GET({ request, url,params }) {
+    const { id } = params;
     const origin = request.headers.get('origin');
 
     if (origin && origin !== ALLOWED_ORIGIN) {
@@ -17,7 +18,7 @@ export async function GET({ request, url }) {
 
     const auth = btoa(`${TRENTINO_TRASPORTI_API_USERNAME}:${TRENTINO_TRASPORTI_API_PASSWORD}`);
 
-    const res = await fetch(`${TRENTINO_TRASPORTI_API_URL}/routes?areas=23`, {
+    const res = await fetch(`${TRENTINO_TRASPORTI_API_URL}/stops?type=U`, {
         method: 'GET',
         headers: {
             Authorization: `Basic ${auth}`,
@@ -26,22 +27,12 @@ export async function GET({ request, url }) {
     });
 
     if (!res.ok) {
-        return json({ error: 'Errore nel recupero delle linee' }, { status: res.status });
+        return json({ error: 'Errore nel recupero delle fermate' }, { status: res.status });
     }
 
-    let data = await res.json();
+    let data = await res.json();    
 
-    data.sort((a, b) => {
-        const aNum = parseInt(a.routeShortName);
-        const bNum = parseInt(b.routeShortName);
-        
-        if (!isNaN(aNum) && !isNaN(bNum)) {
-            return aNum - bNum;
-        }
-        return a.routeShortName.localeCompare(b.routeShortName);
-    });
-    data.find((l)=>l.routeShortName=="5/").routeColor="F5C500"
-    data.forEach((l)=>l.routeColor||="000000")
+    data = data.find(stop => stop.stopId == id);
 
     return json(data);
 }
