@@ -7,7 +7,7 @@
 
 	let lines = $state([]);
 	let line = $state();
-	let time = $state();
+	let time = $state(new Date().toISOString().slice(0,16));
 	let crowdedness = $state();
 
 	async function sendReport() {

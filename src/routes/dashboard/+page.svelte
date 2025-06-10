@@ -2,16 +2,17 @@
 	import Map from './Map.svelte';
 	import { TriangleAlert } from '@lucide/svelte';
 	import { onMount } from 'svelte';
+	import { timetable } from '$lib/stores/timetable';
 
 	let mapOpen = $state(false);
 
 	let map = $state(undefined);
 	let showAnnouncements = $state(false);
 	let interval = undefined;
+	let line = $state(undefined);
 
 	onMount(async () => {
-		
-		if (interval ) clearInterval(interval);
+		if (interval) clearInterval(interval);
 		interval = setInterval(async () => {
 			updateNearArrivals();
 		}, 10000);
@@ -78,7 +79,42 @@
 			console.error('Error fetching reports:', error);
 		}
 	}
+	$effect(() => {
+		if ($timetable?.lines?.length > 0) {
+			line = $timetable.lines[0].routeId;
+		}
+	});
 </script>
+
+<dialog id="timetableModal" class="modal">
+	<div class="modal-box">
+		<form method="dialog">
+			<button class="btn btn-sm btn-circle btn-ghost absolute top-2 right-2">✕</button>
+		</form>
+		{#if $timetable}
+			<div class="flex flex-wrap gap-2">
+				{#each $timetable.lines as l}
+					<label class="flex cursor-pointer items-center">
+						<input type="radio" name="line" class="hidden" bind:group={line} value={l.routeId} />
+						<span
+							class="size-7 rounded text-center font-semibold text-white"
+							style="border: 2px solid #{l.routeColor};background:{line === l.routeId
+								? '#' + l.routeColor
+								: ''}; opacity: {line === l.routeId ? 1 : 0.6};"
+						>
+							{l.routeShortName}
+						</span>
+					</label>
+				{/each}
+			</div>
+			<div class="flex flex-wrap gap-2">
+				{#each $timetable.timetable.timetables[line]?.map((e) => e.departure_time).sort() as time}
+					<span>{time.slice(0, 5)}</span>
+				{/each}
+			</div>
+		{/if}
+	</div>
+</dialog>
 
 <div
 	class="toast toast-top toast-start top-2 left-2 max-w-9/12 gap-1"
@@ -95,7 +131,7 @@
 		<div class="flex justify-between">
 			<h2 class=" text-2xl font-semibold">Fermate più vicine</h2>
 			<button
-				class="border-secondary border flex h-9 w-9 items-center justify-center rounded-full" 
+				class="border-secondary flex h-9 w-9 items-center justify-center rounded-full border"
 				class:bg-secondary={showAnnouncements}
 				onclick={() => (showAnnouncements = !showAnnouncements)}
 			>
@@ -103,7 +139,7 @@
 					<span class="indicator-item indicator-bottom badge badge-warning badge-xs m-0.5 px-1"
 						>{announcements.length}</span
 					>
-					<TriangleAlert color={showAnnouncements?"#ffffff":"var(--color-secondary"}/>
+					<TriangleAlert color={showAnnouncements ? '#ffffff' : 'var(--color-secondary'} />
 				</div>
 			</button>
 		</div>

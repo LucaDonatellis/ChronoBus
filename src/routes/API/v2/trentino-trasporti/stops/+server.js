@@ -2,10 +2,10 @@
 
 import { json } from '@sveltejs/kit';
 import {
-    TRENTINO_TRASPORTI_API_URL,
-    TRENTINO_TRASPORTI_API_USERNAME,
-    TRENTINO_TRASPORTI_API_PASSWORD,
-    ALLOWED_ORIGIN
+	TRENTINO_TRASPORTI_API_URL,
+	TRENTINO_TRASPORTI_API_USERNAME,
+	TRENTINO_TRASPORTI_API_PASSWORD,
+	ALLOWED_ORIGIN
 } from '$env/static/private';
 
 function haversine(lat1, lon1, lat2, lon2) {
@@ -66,6 +66,18 @@ export async function GET({ request, url }) {
 	if (limit > 0) {
 		data = data.slice(0, limit);
 	}
+	
+	data.forEach(stop => {
+		stop.routes.sort((a, b) => {
+			const aNum = parseInt(a.routeShortName);
+			const bNum = parseInt(b.routeShortName);
+
+			if (!isNaN(aNum) && !isNaN(bNum)) {
+				return aNum - bNum;
+			}
+			return a.routeShortName.localeCompare(b.routeShortName);
+		});
+	});
 
 	return json(data);
 }
