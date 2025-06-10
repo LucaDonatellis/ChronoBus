@@ -86,7 +86,7 @@ export async function GET({ request, url }) {
             
         }))
             .filter(arr => arr.ritardo < 100);
-        stop.direction = arrivals[0].directionId;  
+        stop.direction = arrivals[0]?.directionId || 0;  
     }
     
     return json(data);
