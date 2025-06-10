@@ -1,6 +1,7 @@
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-control-geocoder/dist/Control.Geocoder.css';
 import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
+import { errorAlert } from '$lib/stores/alert';
 
 export class Map {
     constructor(mapElement) {
@@ -10,14 +11,19 @@ export class Map {
         this.userLatLon = undefined;
         this.searchLatLng = undefined;
         this.mapElement = mapElement;
+        this.routingControl = null;
 
         this.map = undefined;
     }
     async init() {
-        this.L = await import('leaflet');
+        const L = await import('leaflet');
+        this.L = L.default;
+        window.L = this.L;
+
         await import('leaflet-routing-machine');
-        const Geocoder = (await import('leaflet-control-geocoder')).default;
-        this.ControlGeocoder = Geocoder;
+
+        const Geocoder = await import('leaflet-control-geocoder');
+        this.ControlGeocoder = Geocoder.default;
 
         this.map = this.L.map(this.mapElement, {
             zoomControl: false
@@ -34,7 +40,7 @@ export class Map {
         this.searchBar();
     }
     drawUserLocation() {
-        if (!navigator.geolocation) { alert("GPS error"); return; }
+        if (!navigator.geolocation) { errorAlert("GPS error"); return; }
 
         let accuracyCircle = null;
         let userCircle = null;
@@ -83,7 +89,7 @@ export class Map {
         this.L.marker(coords, { icon: icon }).addTo(this.map);
     }
 
-    addBusStop(coords, stopName, lines, iconColor,dimension) {
+    addBusStop(coords, stopName, lines, iconColor, dimension) {
         const svgIcon = `
 		<svg xmlns="http://www.w3.org/2000/svg" fill=${iconColor} viewBox="0 0 512 489.437" width="${dimension}" height="${dimension}" clip-rule="evenodd" fill-rule="evenodd" image-rendering="optimizeQuality" text-rendering="geometricPrecision" shape-rendering="geometricPrecision">
 
@@ -102,7 +108,7 @@ export class Map {
             html: svgIcon,
             className: '',
             iconSize: [dimension, dimension],
-            iconAnchor: [dimension/2, dimension],
+            iconAnchor: [dimension / 2, dimension],
         });
 
         const marker = this.L.marker(coords, { icon: customIcon }).addTo(this.map);
@@ -163,23 +169,32 @@ export class Map {
 
 
     drawRoute(endingMarker = true) {
+        if (!this.L || !this.map) {
+            console.error('Map components not initialized');
+            return;
+        }
+
         if (this.routingControl) {
             this.map.removeControl(this.routingControl);
         }
-        this.routingControl=this.L.Routing.control({
-            waypoints: [
-                this.userLatLon,
-                this.searchLatLng
-            ],
-            routeWhileDragging: true,
-            show: false,
-            geocoder: this.L.Control.Geocoder.nominatim(),
-            createMarker: (i, wp, nWps) => {
-                if (i === 1 && endingMarker) {
-                    return this.L.marker(wp.latLng);
+
+        try {
+            this.routingControl = this.L.Routing.control({
+                waypoints: [
+                    this.userLatLon,
+                    this.searchLatLng
+                ],
+                routeWhileDragging: true,
+                show: false,
+                createMarker: (i, wp, nWps) => {
+                    if (i === 1 && endingMarker) {
+                        return this.L.marker(wp.latLng);
+                    }
                 }
-            }
-        }).addTo(this.map);
+            }).addTo(this.map);
+        } catch (error) {
+            console.error('Error creating route:', error);
+        }
     }
 
     searchBar() {

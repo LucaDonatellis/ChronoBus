@@ -30,10 +30,10 @@ export async function GET({ request, url }) {
     const dayParam = url.searchParams.get('date');
     if (!dayParam) {
         return new Response(JSON.stringify({ error: 'Date parameter is required' }), { status: 400 });
-    }
+    }    
 
     try {
-        const classes = studentsHours.filter(classTime => classTime.hours.some(lessons => lesson.day === (date.getDay()+6)%7));
+        const classes = studentsHours.filter(classTime => classTime.hours.some(lessons => lesson.day === (new Date(dayParam).getDay()+6)%7));
         
         return new Response(JSON.stringify(reports), { status: 200 });
     } catch (err) {

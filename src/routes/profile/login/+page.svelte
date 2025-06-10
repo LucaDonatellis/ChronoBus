@@ -70,7 +70,7 @@
 	}
 </script>
 
-<div class="register-container m-8">
+<div class="register-container m-auto mt-8">
 	<h2>Auth</h2>
 	<form onsubmit={choice}>
 		<div style="display: grid; gap: 1rem; ">
