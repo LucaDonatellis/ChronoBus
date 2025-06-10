@@ -580,6 +580,243 @@ paths:
                   error:
                     type: string
                     example: Server error.
+/API/v2/session/pswrec/modulecheck:
+    post:
+      summary: Cambia la password di un utente tramite codice di recupero
+      description: >
+        Cambia la password di un utente, dopo aver verificato email, codice di recupero e nuova password.
+        Il codice deve essere stato ricevuto via email in una richiesta precedente.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - codice
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: L'email dell'utente
+                  example: user@mail.com
+                codice:
+                  type: string
+                  description: Codice ricevuto via email
+                  example: "123456"
+                password:
+                  type: string
+                  format: password
+                  description: Nuova password desiderata
+                  example: nuovaPasswordSicura123
+      responses:
+        '201':
+          description: Password cambiata con successo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Password aggiornata.
+        '400':
+          description: Email, codice o password mancanti
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Email, code or password required.
+        '401':
+          description: Codice non corretto
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Code not correct.
+        '409':
+          description: Email non trovata
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Email not found.
+        '500':
+          description: Errore interno del server
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Server error.
+/API/v2/session/pswrec:
+    post:
+      summary: Invia codice cambio password all'utente
+      description: >
+        Riceve una email, verifica l'esistenza dell'utente e invia un codice numerico via email
+        per il cambio password. Il codice è hashato e salvato nel database.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: L'email dell'utente registrato a cui inviare il codice di recupero
+                  example: user@mail.com
+      responses:
+        '201':
+          description: Email inviata con successo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Codice inviato via mail.
+        '400':
+          description: Email mancante
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Email required.
+        '409':
+          description: Email non trovata nel database
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Email not found.
+        '500':
+          description: Errore interno del server
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Server error.
+/API/v2/session/changePsw:
+    post:
+      summary: Cambia la password dell'utente
+      description: >
+        Gestisce il cambio password. Richiede email, vecchia password e nuova password.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - oldpassword
+                - newpassword
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: L'email dell'utente registrato
+                  example: user@mail.com
+                oldpassword:
+                  type: string
+                  format: password
+                  description: Vecchia password dell'utente
+                  example: vecchia_password
+                newpassword:
+                  type: string
+                  format: password
+                  description: Nuova password desiderata
+                  example: nuova_password
+      responses:
+        '201':
+          description: Password cambiata con successo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Password changed
+                  isAdmin:
+                    type: boolean
+        '400':
+          description: Email o password mancanti
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Email and passwords required.
+        '401':
+          description: Vecchia password non valida
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid old password.
+        '402':
+          description: Vecchia e nuova password uguali
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Can t enter the same password.
+        '409':
+          description: Email non trovata
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Email not found.
+        '500':
+          description: Errore interno del server
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Server error.
   /API/v2/students-hours:
     get:
       summary: Ottenere informazioni sugli orari delle lezioni e presenze studenti
