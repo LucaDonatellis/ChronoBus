@@ -1,6 +1,9 @@
 <script>
 	import Map from './Map.svelte';
-	import { TriangleAlert } from '@lucide/svelte';
+	import { TriangleAlert,
+		BusFront,
+		House,
+	 } from '@lucide/svelte';
 	import { onMount } from 'svelte';
 
 	let mapOpen = $state(false);
@@ -112,11 +115,15 @@
 		{:else}
 			{#each stopsGroups as stopsGroup}
 				<div class="">
-					<h3 class="text-xl">{stopsGroup[0].stopName}</h3>
 					<div class="flex">
 						{#each stopsGroup as stop}
 							<div class="w-full">
-								<p class="whitespace-nowrap">{stop.stopName}</p>
+								
+								<p class="flex items-center gap-2 whitespace-nowrap">{#if stop.direction} <span aria-label="Andata" title="Andata"><House/></span> {/if}
+									{#if !stop.direction} <span aria-label="Ritorno" title="Ritorno">
+										<BusFront />
+									  </span> {/if}{stop.stopName}</p> 
+								
 								<div class="flex gap-1">
 									{#each stop.arrivals as arrival}
 										<div class="flex flex-col items-center justify-center">
