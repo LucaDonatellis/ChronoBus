@@ -26,11 +26,19 @@
 			errorError('Logout fallito');
 		}
 	}
+
+
+	function gotochangePsw() {
+		if (token) {
+			goto('/profile/changePsw');
+		} 
+	}
 </script>
 
 <div class="flex gap-2 p-2">
 	<button onclick={gotologin} class="btn btn-primary flex-1"> Login </button>
 	{#if token}
 		<button onclick={logout} class="btn btn-secondary flex-1"> Logout </button>
+		<button onclick={gotochangePsw} class="btn btn-secondary flex-1"> Cambio password </button>
 	{/if}
 </div>
