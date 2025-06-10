@@ -70,7 +70,7 @@
 	}
 </script>
 
-<div class="register-container">
+<div class="register-container m-8">
 	<h2>Auth</h2>
 	<form onsubmit={choice}>
 		<div style="display: grid; gap: 1rem; ">
@@ -94,7 +94,6 @@
 	.register-container {
 		background: #fff;
 		max-width: 340px;
-		margin: 80px auto;
 		padding: 36px 28px;
 		border-radius: 10px;
 		box-shadow: 0 2px 12px rgba(60, 80, 120, 0.12);

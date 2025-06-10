@@ -38,7 +38,7 @@
 		</div>
 	</div>
 {/if}
-<div class="relative" style="height: calc(100vh - 4rem)">
+<div class="relative" style="height: calc(100dvh - 4rem)">
 	{@render children()}
 </div>
 <div class="dock dock-md">

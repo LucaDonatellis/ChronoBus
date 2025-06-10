@@ -27,7 +27,7 @@
 		}
 	}
 </script>
-
+<h2 class=" p-2 text-2xl font-semibold">Profilo</h2>
 <div class="flex gap-2 p-2">
 	<button onclick={gotologin} class="btn btn-primary flex-1"> Login </button>
 	{#if token}
