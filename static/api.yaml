@@ -3,7 +3,8 @@ info:
   title: ChronoBus API
   version: 2.0.0
   description: API per il sito ChronoBus
-
+servers:
+  - url: https://chronobus-44gy.onrender.com/
 paths:
   /API/v2/official_report:
     get:

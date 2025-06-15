@@ -6,7 +6,7 @@ export async function POST({ request }) {
     const { valid, payload, error } = validateToken(request);
 
     if (!valid) {
-        return json({ error }, { status: 401 });
+        return json({ error: 'Non autorizzato' }, { status: 401 });
     }
 
     try {

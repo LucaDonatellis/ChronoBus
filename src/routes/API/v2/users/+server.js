@@ -64,7 +64,7 @@ export async function POST({ request }) {
   } catch (err) {
     console.error('Registration error:', err);
     return json(
-      { error: 'Server error.' },
+      { error: 'Server error' },
       { status: 500 }
     );
   }
