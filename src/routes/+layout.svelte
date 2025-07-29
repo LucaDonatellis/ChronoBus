@@ -56,10 +56,12 @@
 		<ChartLine />
 		<span class="dock-label">Orari di punta</span>
 	</a>
+
 	<a class:dock-active={page.url.pathname === '/report'} href="/report">
 		<MailWarning />
 		<span class="dock-label">Segnala</span>
 	</a>
+
 	{#if $isAdmin}
 		<a class:dock-active={page.url.pathname === '/admin'} href="/admin">
 			<Bolt />
