@@ -57,7 +57,7 @@ export async function POST({ request }) {
     if (!user) {
       user = new User({
         email,
-        password: null,
+        password: "undefined",
         isAdmin: false,
         isGoogleAuthenticated: true
       });
