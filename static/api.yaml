@@ -1701,8 +1701,230 @@ paths:
                   error:
                     type: string
                     example: Server error
+/API/v2/session/loginwithgoogle:
 
 
+
+endpoint: /API/v2/session/loginwithgoogle
+
+
+methods:
+
+
+  OPTIONS:
+
+
+    description: Risponde alle richieste preflight CORS
+
+
+    response:
+
+
+      status: 204
+
+
+      headers:
+
+
+        Access-Control-Allow-Origin: ${ALLOWED_ORIGIN}
+
+
+        Access-Control-Allow-Headers: Content-Type
+
+
+        Access-Control-Allow-Methods: POST, OPTIONS
+
+
+
+
+
+  POST:
+
+
+    description: Verifica il token ID Google e autentica o registra l'utente
+
+
+    request:
+
+
+      content-type: application/json
+
+
+      body:
+
+
+        token: string (Google ID token)
+
+
+    steps:
+
+
+      - checkTokenPresent:
+
+
+          ifMissing:
+
+
+            response:
+
+
+              status: 400
+
+
+              body:
+
+
+                error: "Google token missing"
+
+
+      - verifyGoogleToken:
+
+
+          using: "google-auth-library"
+
+
+          input:
+
+
+            idToken: token
+
+
+            audience: ${PUBLIC_GOOGLE_CLIENT_ID}
+
+
+          output: payload
+
+
+      - extractEmail:
+
+
+          from: payload.email
+
+
+          ifMissing:
+
+
+            response:
+
+
+              status: 400
+
+
+              body:
+
+
+                error: "Invalid Google token"
+
+
+      - findOrCreateUser:
+
+
+          query: { email: payload.email }
+
+
+          ifNotFound:
+
+
+            create:
+
+
+              email: payload.email
+
+
+              password: null
+
+
+              isAdmin: false
+
+
+              isGoogleAuthenticated: true
+
+
+      - generateJWT:
+
+
+          library: jsonwebtoken
+
+
+          payload:
+
+
+            id: user._id
+
+
+            email: user.email
+
+
+            isAdmin: user.isAdmin
+
+
+          secret: ${JWT_PASSWORD}
+
+
+          options:
+
+
+            expiresIn: 30d
+
+
+          output: jwtToken
+
+
+      - respondSuccess:
+
+
+          status: 200
+
+
+          body:
+
+
+            message: "Logged in with Google"
+
+
+            isAdmin: user.isAdmin
+
+
+            email: user.email
+
+
+            token: jwtToken
+
+
+            idToken: token
+
+
+    onError:
+
+
+      catch:
+
+
+        log: "Google Login Error"
+
+
+        response:
+
+
+          status: 500
+
+
+          body:
+
+
+            error: "Failed to authenticate with Google"
+
+
+    corsHeaders:
+
+
+      Access-Control-Allow-Origin: ${ALLOWED_ORIGIN}
+
+
+      Access-Control-Allow-Headers: Content-Type
+
+
+      Access-Control-Allow-Methods: POST, OPTIONS
 
 
 components:
