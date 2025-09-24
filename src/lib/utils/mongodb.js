@@ -38,6 +38,7 @@ const UserSchema = new mongoose.Schema({
     password: { type: String, required: true },
     rec_code: {type: String, default:  "NULL"},
     isAdmin: { type: Boolean, default: false },
+    isGoogleAuthenticated: { type: Boolean, default: false },
     courses: [CourseSchema],
     notificationsAdvance: {type: Number, default: 0},
 });
